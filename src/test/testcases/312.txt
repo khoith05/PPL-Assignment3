@@ -1,0 +1,7 @@
+class add extends Expr{ 
+						static int a=3,b,c=4;
+						final float d=14e-2;
+						static final boolean e=true;
+						final static string f="Hello";
+						static Shape s;
+					}

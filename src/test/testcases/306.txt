@@ -1,0 +1,6 @@
+class add extends Expr{ 
+						int[4] a={0012,0340,30,0},b,c={1,2,3,4}; 
+						float[3] d={1.,3e1,5.2e-2};
+						boolean[3] e={true,false,true};
+						string[3] f={"hi","my","name"};
+					}

@@ -1,0 +1,6 @@
+class add{
+						int main(){
+							for i:=1 to 5 do
+								break;
+						}
+		} 

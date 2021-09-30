@@ -1,0 +1,5 @@
+class add{
+						int main(){
+							int a=4,b,c=3;
+						}
+		}  

@@ -1,0 +1,6 @@
+class add extends Expr{
+						int main(){
+							Shape a;
+							a:= Shape.length(b+c,c*d,new Shape());
+						}
+		} 

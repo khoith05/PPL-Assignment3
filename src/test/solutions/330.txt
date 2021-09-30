@@ -1,0 +1,1 @@
+Program([ClassDecl(Id("add"),[MethodDecl(Instance(),Id("main"),[],IntType(),Block([],[Assign(FieldAccess(Id("this"),Id("a")),IntLiteral(3))]))])])

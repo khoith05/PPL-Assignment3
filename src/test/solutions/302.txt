@@ -1,1 +1,1 @@
-None
+Program([ClassDecl(Id("add"),[AttributeDecl(Instance(),VarDecl(Id("a"),ArrayType(4,IntType())))]),Id("Expr")])

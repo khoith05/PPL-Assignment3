@@ -1,0 +1,6 @@
+class add{
+						int main(){
+							for i:=5 downto 1 do
+								continue; 
+						}
+		} 

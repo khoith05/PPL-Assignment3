@@ -1,0 +1,4 @@
+class add extends Expr{
+						static Shape func(){}
+						static Shape[4] func_1(){}
+		} 

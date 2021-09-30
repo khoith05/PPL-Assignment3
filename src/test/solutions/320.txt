@@ -1,0 +1,1 @@
+Program([ClassDecl(Id("add"),[MethodDecl(Instance(),Id("func"),[VarDecl(Id("d"),ClassType(Id("Shape")))],IntType(),Block([],[]))])])
