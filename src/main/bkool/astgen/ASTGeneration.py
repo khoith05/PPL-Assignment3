@@ -16,5 +16,3 @@ class ASTGeneration(BKOOLVisitor):
     def visitBkooltype(self,ctx:BKOOLParser.BkooltypeContext):
         return IntType() if ctx.INTTYPE() else VoidType()
         
-
-    
