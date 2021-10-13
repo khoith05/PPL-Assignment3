@@ -445,4 +445,3 @@ class ASTGeneration(BKOOLVisitor):
     # methodcall_statement: expr DOT ID LB expr_lst? RB SEMI ;
     def visitMethodcall_statement(self, ctx:BKOOLParser.Methodcall_statementContext):
         return CallStmt(ctx.expr().accept(self),Id(ctx.ID().getText()),ctx.expr_lst().accept(self) if ctx.expr_lst()!=None else [])
->>>>>>> test
