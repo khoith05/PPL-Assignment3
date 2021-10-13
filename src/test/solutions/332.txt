@@ -1,1 +1,1 @@
-Program([ClassDecl(Id("add"),[MethodDecl(Instance(),Id("main"),[],IntType(),Block([],[If(Id("a"),Assign(Id("a"),IntLiteral(1)))]))])])
+Program([ClassDecl(Id(add),[MethodDecl(Id(main),Instance,[],IntType,Block([],[If(Id(a),AssignStmt(Id(a),IntLit(1)))]))])])

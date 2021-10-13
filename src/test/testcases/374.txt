@@ -1,1 +1,6 @@
- 
+class Add extends Expr{
+						int main(){
+							this.a()[3]:=1;
+							thia.a().b().a:=1;
+						}
+		}  

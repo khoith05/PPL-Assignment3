@@ -1,1 +1,15 @@
- 
+class add extends Expr{ 
+						static int a=3,b,c=4;
+						final float d=14e-2;
+						static final boolean e=true;
+						final static string f="Hello";
+						static Shape s;
+						int[4] foo(int a){}
+						int[5] foo(int a){}
+						float[4] foo(float a){}
+						boolean[4] foo(boolean a){
+						}
+						string[4] foo(string a){
+
+						}
+					}

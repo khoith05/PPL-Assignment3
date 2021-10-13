@@ -1,1 +1,1 @@
-Program([ClassDecl(Id("add"),[MethodDecl(Instance(),Id("func"),[],IntType(),Block([],[])),MethodDecl(Instance(),Id("func_1"),[],FloatType(),Block([],[])),MethodDecl(Instance(),Id("func_2"),[],BoolType(),Block([],[])),MethodDecl(Instance(),Id("func_3"),[],StringType(),Block([],[]))]),Id("Expr")])
+Program([ClassDecl(Id(add),Id(Expr),[MethodDecl(Id(func),Instance,[],IntType,Block([],[])),MethodDecl(Id(func_1),Instance,[],FloatType,Block([],[])),MethodDecl(Id(func_2),Instance,[],BoolType,Block([],[])),MethodDecl(Id(func_3),Instance,[],StringType,Block([],[]))])])

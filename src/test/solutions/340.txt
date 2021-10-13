@@ -1,1 +1,1 @@
-Program([ClassDecl(Id("add"),[MethodDecl(Instance(),Id("main"),[],IntType(),Block([],[For(Id("i"),FloatLiteral(30000000.0),IntLiteral(12),False,Block([],[Assign(Id("i"),BinaryOp("+",Id("i"),IntLiteral(20)))]))]))]),Id("Expr")])
+Program([ClassDecl(Id(add),Id(Expr),[MethodDecl(Id(main),Instance,[],IntType,Block([],[For(Id(i),FloatLit(30000000.0),IntLit(12),False,Block([],[AssignStmt(Id(i),BinaryOp(+,Id(i),IntLit(20)))])])]))])])

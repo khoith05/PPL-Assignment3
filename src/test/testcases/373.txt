@@ -1,1 +1,7 @@
- 
+class Add extends Expr{
+						int main(){
+							a:=1;
+							this.a:=1;
+							a[3]:=1;
+						}
+		} 

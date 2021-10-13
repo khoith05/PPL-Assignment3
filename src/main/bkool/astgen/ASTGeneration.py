@@ -154,7 +154,10 @@ class ASTGeneration(BKOOLVisitor):
 
     # method_decl:method_decl_pre mdecl_type (ID|MAIN_LIT) LB para_lst? RB block_statement ;
     def visitMethod_decl(self, ctx:BKOOLParser.Method_declContext):
-        return [MethodDecl(ctx.method_decl_pre().accept(self),Id(ctx.ID().getText()) if ctx.ID()!=None else Id(ctx.MAIN_LIT().getText()),ctx.para_lst().accept(self) if ctx.para_lst()!=None else [],ctx.mdecl_type().accept(self),ctx.block_statement().accept(self))]
+        if str(ctx.mdecl_type().accept(self))=="None":
+            return [MethodDecl(Instance(), Id("<init>"),ctx.para_lst().accept(self) if ctx.para_lst()!=None else [],None,ctx.block_statement().accept(self))]
+        else:
+            return [MethodDecl(ctx.method_decl_pre().accept(self), Id(ctx.getChild(2).getText()),ctx.para_lst().accept(self) if ctx.para_lst()!=None else [],ctx.mdecl_type().accept(self),ctx.block_statement().accept(self))]
 
 
     # method_decl_pre: STATIC_LIT | ;
@@ -195,7 +198,7 @@ class ASTGeneration(BKOOLVisitor):
         elif ctx.VOID_LIT()!=None:
             return VoidType()
         else:
-            return None
+            return "None"
 
 
     # expr: expr1 (GREAT_OP|LESS_OP|GEQUA_OP|LEQUA_OP) expr1 |expr1;
@@ -263,12 +266,12 @@ class ASTGeneration(BKOOLVisitor):
             return UnaryOp(ctx.getChild(0).getText(),ctx.expr8().accept(self))
 
 
-    # expr8: expr9 LSB expr RSB |expr9;
+    # expr8: expr8 LSB expr RSB |expr9;
     def visitExpr8(self, ctx:BKOOLParser.Expr8Context):
         if ctx.getChildCount()==1:
             return ctx.expr9().accept(self)
         else:
-            return ArrayCell(ctx.expr9().accept(self),ctx.expr().accept(self))
+            return ArrayCell(ctx.expr8().accept(self),ctx.expr().accept(self))
 
 
     # expr9: expr9 DOT ID (LB expr_lst? RB) |expr9 DOT ID | expr10;
@@ -290,7 +293,7 @@ class ASTGeneration(BKOOLVisitor):
             return NewExpr(Id(ctx.ID().getText()),ctx.expr_lst().accept(self) if ctx.expr_lst()!=None else [])
 
 
-    # expr11: ID | INTMT| FLOATMT|STRINGMT |BOOLMT |THIS_LIT|NIL_LIT|LB expr RB;
+    # expr11: ID | INTMT| FLOATMT|STRINGMT |BOOLMT |THIS_LIT|NIL_LIT|LB expr RB|LCB array_value RCB;
     def visitExpr11(self, ctx:BKOOLParser.Expr11Context):
         if ctx.ID()!=None:
             return Id(ctx.ID().getText())
@@ -303,11 +306,14 @@ class ASTGeneration(BKOOLVisitor):
         elif ctx.BOOLMT()!=None:
             return BooleanLiteral(True if ctx.BOOLMT().getText()=="true" else False)
         elif ctx.THIS_LIT()!=None:
-            return Id(ctx.THIS_LIT().getText())
+            return SelfLiteral()
         elif ctx.NIL_LIT()!=None:
             return NullLiteral()
-        else:
+        elif ctx.LB()!=None:
             return ctx.expr().accept(self)
+        else:
+            return ArrayLiteral(ctx.array_value().accept(self))
+
 
 
     # expr_lst:expr COMMA expr_lst| expr;
@@ -335,18 +341,38 @@ class ASTGeneration(BKOOLVisitor):
         return [ctx.statement().accept(self)] + ctx.statement_lst().accept(self) if ctx.statement()!=None else []
 
 
-    # var_decl_2:vdecl_type var_lst SEMI;
+    # var_decl_2:(FINAL_LIT)? vdecl_type var_lst SEMI;
     def visitVar_decl_2(self, ctx:BKOOLParser.Var_decl_2Context):
         vtype=ctx.vdecl_type().accept(self)
         vlist=ctx.var_lst().accept(self)
-        return [VarDecl(x[0],vtype) for x in vlist if len(x)==1 ] + [VarDecl(x[0],vtype,x[1]) for x in vlist if len(x) ==2]
+        reval=[]
+        if ctx.FINAL_LIT()==None:
+            for x in vlist:
+                if len(x)==1:
+                    reval+=[VarDecl(x[0],vtype)]
+                elif len(x)==2:
+                    reval+=[VarDecl(x[0],vtype,x[1])]
+        else:
+            reval+=[ConstDecl(x[0],vtype,x[1]) for x in vlist]
+        return reval
+        #return [VarDecl(x[0],vtype) for x in vlist if len(x)==1 ] + [VarDecl(x[0],vtype,x[1]) for x in vlist if len(x) ==2] if ctx.FINAL_LIT()==None else [ConstDecl(x[0],vtype,x[1]) for x in vlist]
 
 
     # array_decl_2:array_type array_lst SEMI;
     def visitArray_decl_2(self, ctx:BKOOLParser.Array_decl_2Context):
         atype=ctx.array_type().accept(self)
         alist=ctx.array_lst().accept(self)
-        return [VarDecl(x[0],atype) for x in alist if len(x)==1] + [VarDecl(x[0],atype,x[1]) for x in alist if len(x)==2]
+        reval=[]
+        if ctx.FINAL_LIT()==None:
+            for x in alist:
+                if len(x)==1:
+                    reval+=[VarDecl(x[0],atype)]
+                elif len(x)==2:
+                    reval+=[VarDecl(x[0],atype,x[1])]
+        else:
+            reval+=[ConstDecl(x[0],atype,x[1]) for x in alist]
+        return reval
+        #return [VarDecl(x[0],atype) for x in alist if len(x)==1] + [VarDecl(x[0],atype,x[1]) for x in alist if len(x)==2] if ctx.FINAL_LIT()==None else [ConstDecl(x[0],atype,x[1]) for x in alist]
 
 
     # statement:  block_statement | assign_statement
@@ -376,16 +402,14 @@ class ASTGeneration(BKOOLVisitor):
     def visitAssign_statement(self, ctx:BKOOLParser.Assign_statementContext):
         return Assign(ctx.var_name().accept(self),ctx.expr().accept(self))
 
-    # var_name: ID | ID DOT ID |ID LSB expr RSB|THIS_LIT DOT ID;
+    # var_name: ID | expr DOT ID |expr LSB expr RSB;
     def visitVar_name(self, ctx:BKOOLParser.Var_nameContext):
         if ctx.getChildCount()==1:
-            return Id(ctx.ID(0).getText())
-        elif ctx.ID(1)!=None:
-            return FieldAccess(Id(ctx.ID(0).getText()),Id(ctx.ID(1).getText()))
-        elif ctx.getChildCount()==4:
-            return ArrayCell(Id(ctx.ID(0).getText()),ctx.expr().accept(self))
-        else: 
-            return FieldAccess(Id(ctx.THIS_LIT().getText()),Id(ctx.ID(0).getText()))
+            return Id(ctx.ID().getText())
+        elif ctx.expr(1)!=None:
+            return ArrayCell(ctx.expr(0).accept(self),ctx.expr(1).accept(self))
+        else:
+            return FieldAccess(ctx.expr(0).accept(self),Id(ctx.ID().getText()))
 
 
     # if_statement: IF_LIT expr THEN_LIT statement else_state;

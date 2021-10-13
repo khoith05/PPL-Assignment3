@@ -1,6 +1,6 @@
-class add{
-						static int main(){
-							int[3] a={1,2,3},b,c;
-							return a[2];
-						}
-		} 
+class A {
+            int a, b;
+            final static float c = 2.0e-123;
+            int main() {}
+            static void checkFloat(float f) {}
+        }

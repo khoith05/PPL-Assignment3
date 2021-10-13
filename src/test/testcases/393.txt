@@ -1,1 +1,5 @@
- 
+class Add extends Expr{
+						int main(){
+							final Shape[4] a={1,2,3,4};
+						}
+		} 

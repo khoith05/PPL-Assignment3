@@ -1,1 +1,8 @@
- 
+class Add extends Expr{
+						int main(){
+							if a>b then{
+								int a;
+								a:=1;
+							}else a:=2;
+						}
+		} 

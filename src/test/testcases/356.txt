@@ -1,1 +1,7 @@
- 
+class add extends Expr{
+						int main(){
+							a:=b[4];
+							a:=b[1+a/3];
+							a:=b[1+b[3]];
+						}
+		 } 

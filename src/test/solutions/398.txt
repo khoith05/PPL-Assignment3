@@ -1,0 +1,1 @@
+Program([ClassDecl(Id(Add),Id(Expr),[MethodDecl(Id(main),Instance,[],IntType,Block([ConstDecl(Id(a),IntType,IntLit(6)),ConstDecl(Id(b),FloatType,FloatLit(700.0)),ConstDecl(Id(c),StringType,StringLit("ddfdf")),ConstDecl(Id(d),BoolType,BooleanLit(True))],[]))])])

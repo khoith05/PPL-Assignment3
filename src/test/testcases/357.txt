@@ -1,1 +1,11 @@
- 
+class add extends Expr{
+						int main(){
+							Shape a=new Shape(2);
+							b:=a.length+1;
+							c:=a.area();
+							c:=a.area(1+1,a+b);
+							c:=a.b.c.a;
+							c:=a.b.c.area(1\2,a%b);
+
+						}
+		 } 

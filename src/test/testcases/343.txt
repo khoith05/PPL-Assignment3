@@ -1,1 +1,13 @@
- 
+class Add extends Expr{
+						Add(int a){
+							this.a:=a;
+						}
+						int foo(int a){}
+						float foo(float a){}
+						boolean foo(boolean a){
+						}
+						string foo(string a){
+
+						}
+
+		} 

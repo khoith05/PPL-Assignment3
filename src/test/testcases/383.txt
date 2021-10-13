@@ -1,1 +1,7 @@
- 
+
+				class Add extends Expr{
+					int main(){
+						this.aa(2,3,4).aaa("ddd").a(True,True);
+					}
+				}
+		 

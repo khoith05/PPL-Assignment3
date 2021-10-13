@@ -1,1 +1,12 @@
- 
+class Add extends Expr{
+						int main(){
+							a:=b;
+							a:=1;
+							a:=123e2;
+							a:=True;
+							a:="333";
+							a:=this.c;
+							a:=this.a().b().c;
+							a:=nil;
+						}
+		}  

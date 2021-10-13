@@ -1,1 +1,8 @@
- 
+class Add extends Expr{
+						int main(){
+							for i:=4 downto -1 do {
+                    			int v = (a[i]).check();
+                    			if v > max then max := v;
+                			}
+						}
+		}

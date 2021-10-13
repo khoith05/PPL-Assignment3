@@ -1,1 +1,1 @@
-Program([ClassDecl(Id("add"),[MethodDecl(Instance(),Id("main"),[],IntType(),Block([VarDecl(Id("a"),ClassType(Id("Shape")))],[Assign(Id("a"),CallExpr(Id("Shape"),Id("length"),[BinaryOp("+",Id("b"),Id("c")),BinaryOp("*",Id("c"),Id("d")),NewExpr(Id("Shape"),[])]))]))]),Id("Expr")])
+Program([ClassDecl(Id(add),Id(Expr),[MethodDecl(Id(main),Instance,[],IntType,Block([VarDecl(Id(a),ClassType(Id(Shape)))],[AssignStmt(Id(a),CallExpr(Id(Shape),Id(length),[BinaryOp(+,Id(b),Id(c)),BinaryOp(*,Id(c),Id(d)),NewExpr(Id(Shape),[])]))]))])])

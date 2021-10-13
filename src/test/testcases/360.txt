@@ -1,1 +1,10 @@
- 
+class Add extends Expr{
+						int main(){
+							a:=(b);
+							a:=(1)+b;
+							a:=(123e2);
+							a:=(True)+False;
+							a:=(a+b)*c;
+							a:=a-(-c);
+						}
+		} 

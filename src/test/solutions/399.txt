@@ -1,0 +1,1 @@
+Program([ClassDecl(Id(add),Id(Expr),[MethodDecl(Id(main),Instance,[],IntType,Block([],[If(BinaryOp(<,Id(a),Id(a)),Block([],[]),Block([],[]))]))])])

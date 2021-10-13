@@ -1,1 +1,1 @@
-Program([ClassDecl(Id("add"),[AttributeDecl(Instance(),VarDecl(Id("a"),IntType(),IntLiteral(3))),AttributeDecl(Instance(),VarDecl(Id("b"),IntType())),AttributeDecl(Instance(),VarDecl(Id("c"),IntType(),IntLiteral(4)))]),Id("Expr")])
+Program([ClassDecl(Id(add),Id(Expr),[AttributeDecl(Instance,VarDecl(Id(a),IntType,IntLit(3))),AttributeDecl(Instance,VarDecl(Id(b),IntType)),AttributeDecl(Instance,VarDecl(Id(c),IntType,IntLit(4)))])])

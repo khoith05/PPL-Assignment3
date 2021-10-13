@@ -1,1 +1,6 @@
- 
+class add{
+					int main(){
+						{break;}
+						{continue;}
+					}
+		} 

@@ -1,1 +1,10 @@
- 
+class Add extends Expr{
+						int main(){
+							final int[4] a={1,2,3};
+							final float[4] b={1,1,2};
+							final boolean[4] c={true,false,true};
+							final string[4] d={"a","b","c"};
+							
+							
+						}
+		} 

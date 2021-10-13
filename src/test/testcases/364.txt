@@ -1,1 +1,7 @@
- 
+class Add extends Expr{
+						int main(){
+							a:=(-a+b*c)*c-e;
+							a:=(a)+(b);
+							a:=a-b-b-b;
+						}
+		} 

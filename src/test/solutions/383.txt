@@ -1,0 +1,1 @@
+Program([ClassDecl(Id(Add),Id(Expr),[MethodDecl(Id(main),Instance,[],IntType,Block([],[Call(CallExpr(CallExpr(Self(),Id(aa),[IntLit(2),IntLit(3),IntLit(4)]),Id(aaa),[StringLit("ddd")]),Id(a),[Id(True),Id(True)])]))])])

@@ -1,1 +1,1 @@
-Program([ClassDecl(Id("add"),[MethodDecl(Static(),Id("func"),[],ClassType(Id("Shape")),Block([],[])),MethodDecl(Static(),Id("func_1"),[],ArrayType(4,ClassType(Id("Shape"))),Block([],[]))]),Id("Expr")])
+Program([ClassDecl(Id(add),Id(Expr),[MethodDecl(Id(func),Static,[],ClassType(Id(Shape)),Block([],[])),MethodDecl(Id(func_1),Static,[],ArrayType(4,ClassType(Id(Shape))),Block([],[]))])])

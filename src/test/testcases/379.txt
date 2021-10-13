@@ -1,1 +1,10 @@
- 
+class Add extends Expr{
+						int main(){
+							if a==1 then
+								a:=2;
+							else if a>3 then
+								a:=4;
+							else if a<5 then 
+								return a;
+						}
+		} 

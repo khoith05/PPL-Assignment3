@@ -1,1 +1,6 @@
- 
+class add extends Expr{
+						int main(){
+							if a&&b then a:=1;
+							if a||b then a:=1;
+						}
+		 }  

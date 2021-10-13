@@ -1,1 +1,6 @@
- 
+class Add extends Expr{
+						int main(){
+							Shape a=new Shape();
+							a:=new Shape() + a ;
+						}
+		}  

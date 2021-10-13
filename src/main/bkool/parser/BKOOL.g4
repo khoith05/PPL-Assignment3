@@ -83,13 +83,13 @@ expr6: NOT_OP expr6 |expr7;
 
 expr7: (ADD_OP|SUB_OP) expr8 |expr8;
 
-expr8: expr9 LSB expr RSB |expr9;
+expr8: expr8 LSB expr RSB |expr9;
 
 expr9: expr9 DOT ID (LB expr_lst? RB) |expr9 DOT ID | expr10;
 
 expr10:NEW_LIT ID LB expr_lst? RB| expr11;
 
-expr11: ID | INTMT| FLOATMT|STRINGMT |BOOLMT |THIS_LIT|NIL_LIT|LB expr RB;
+expr11: ID | INTMT| FLOATMT|STRINGMT |BOOLMT |THIS_LIT|NIL_LIT|LB expr RB|LCB array_value RCB;
 
 expr_lst:expr COMMA expr_lst| expr;
 
@@ -117,9 +117,9 @@ block_decl: var_decl_2|array_decl_2;
 
 statement_lst: statement statement_lst | ;
 
-var_decl_2:vdecl_type var_lst SEMI;
+var_decl_2:(FINAL_LIT)? vdecl_type var_lst SEMI;
 
-array_decl_2:array_type array_lst SEMI;
+array_decl_2:(FINAL_LIT)? array_type array_lst SEMI;
 
 statement:  block_statement | assign_statement
 			| if_statement |for_statement
@@ -128,7 +128,7 @@ statement:  block_statement | assign_statement
 
 assign_statement: var_name ASSIGN_OP expr SEMI;
 
-var_name: ID | ID DOT ID |ID LSB expr RSB|THIS_LIT DOT ID;
+var_name: ID | expr DOT ID |expr LSB expr RSB;
 
 if_statement: IF_LIT expr THEN_LIT statement else_state;
 

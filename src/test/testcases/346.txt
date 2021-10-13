@@ -1,1 +1,13 @@
- 
+class Add extends Expr{
+						Add(int a){
+							this.a:=a;
+						}
+						static int foo(int a){}
+						static float foo(float a){}
+						static boolean foo(boolean a){
+						}
+						static string foo(string a){
+
+						}
+
+		}  

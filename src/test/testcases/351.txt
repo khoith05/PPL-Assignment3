@@ -1,1 +1,6 @@
- 
+class add extends Expr{
+						int main(){
+							a:=a+b;
+							a:=a-b;
+						}
+		 }  

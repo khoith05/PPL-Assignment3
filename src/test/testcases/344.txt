@@ -1,1 +1,10 @@
- 
+class Add extends Expr{
+						int[4] foo(int a){}
+						int[5] foo(int a){}
+						float[4] foo(float a){}
+						boolean[4] foo(boolean a){
+						}
+						string[4] foo(string a){
+
+						}
+		} 

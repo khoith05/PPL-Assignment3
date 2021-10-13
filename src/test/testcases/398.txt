@@ -1,1 +1,8 @@
- 
+class Add extends Expr{
+						int main(){
+							final int a=6;
+							final float b=7e2;
+							final string c="ddfdf";
+							final boolean d=true;
+						}
+		} 
