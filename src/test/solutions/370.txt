@@ -1,0 +1,1 @@
+Program([ClassDecl(Id(Add),Id(Expr),[MethodDecl(Id(main),Instance,[],IntType,Block([],[AssignStmt(Id(a),FieldAccess(FieldAccess(FieldAccess(FieldAccess(Id(a),Id(a)),Id(a)),Id(a)),Id(a))),AssignStmt(Id(a),CallExpr(FieldAccess(Id(a),Id(a)),Id(a),[FieldAccess(FieldAccess(Id(a),Id(a)),Id(a)),FieldAccess(FieldAccess(Id(a),Id(a)),Id(a))]))]))])])

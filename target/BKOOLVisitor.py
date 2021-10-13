@@ -104,6 +104,11 @@ class BKOOLVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by BKOOLParser#para_decl.
+    def visitPara_decl(self, ctx:BKOOLParser.Para_declContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by BKOOLParser#id_lst.
     def visitId_lst(self, ctx:BKOOLParser.Id_lstContext):
         return self.visitChildren(ctx)
@@ -226,6 +231,11 @@ class BKOOLVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by BKOOLParser#if_statement.
     def visitIf_statement(self, ctx:BKOOLParser.If_statementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by BKOOLParser#else_state.
+    def visitElse_state(self, ctx:BKOOLParser.Else_stateContext):
         return self.visitChildren(ctx)
 
 

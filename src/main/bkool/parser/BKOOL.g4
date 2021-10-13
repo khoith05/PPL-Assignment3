@@ -9,9 +9,9 @@ options{
 	language=Python3;
 }
 
-program: class_decl class_decl_lst EOF;
+program: class_decl_lst EOF;
 
-class_decl_lst: class_decl class_decl_lst| ;
+class_decl_lst: class_decl class_decl_lst| class_decl;
 
 class_decl: CLASS_LIT ID (EXTEND_LIT ID)? LCB decl_lst RCB ;
 
@@ -47,15 +47,17 @@ var_assign: ID '=' expr | ID;
 
 
 //
-method_decl:(method_decl_pre mdecl_type)? (ID|MAIN_LIT) LB para_lst? RB block_statement ;
+method_decl:method_decl_pre mdecl_type (ID|MAIN_LIT) LB para_lst? RB block_statement ;
 
 method_decl_pre: STATIC_LIT | ;
 
-para_lst:(vdecl_type|array_type) id_lst SEMI para_lst | (vdecl_type|array_type) id_lst;
+para_lst: para_decl SEMI para_lst | para_decl;
+
+para_decl:(vdecl_type|array_type) id_lst;
 
 id_lst: ID COMMA id_lst |ID;
 
-mdecl_type: vdecl_type| array_type|VOID_LIT;
+mdecl_type: vdecl_type| array_type|VOID_LIT|;
 
 //COMMENT	
 
@@ -81,13 +83,13 @@ expr6: NOT_OP expr6 |expr7;
 
 expr7: (ADD_OP|SUB_OP) expr8 |expr8;
 
-expr8: expr9 LSB expr RSB |expr9;
+expr8: expr8 LSB expr RSB |expr9;
 
-expr9: expr9 DOT ID (LB expr_lst? RB)?  | expr10;
+expr9: expr9 DOT ID (LB expr_lst? RB) |expr9 DOT ID | expr10;
 
-expr10:NEW_LIT expr11 LB expr_lst? RB| expr11;
+expr10:NEW_LIT ID LB expr_lst? RB| expr11;
 
-expr11: ID | INTMT| FLOATMT|STRINGMT |BOOLMT |THIS_LIT|NIL_LIT|LB expr RB;
+expr11: ID | INTMT| FLOATMT|STRINGMT |BOOLMT |THIS_LIT|NIL_LIT|LB expr RB|LCB array_value RCB;
 
 expr_lst:expr COMMA expr_lst| expr;
 
@@ -115,9 +117,9 @@ block_decl: var_decl_2|array_decl_2;
 
 statement_lst: statement statement_lst | ;
 
-var_decl_2:vdecl_type var_lst SEMI;
+var_decl_2:(FINAL_LIT)? vdecl_type var_lst SEMI;
 
-array_decl_2:array_type array_lst SEMI;
+array_decl_2:(FINAL_LIT)? array_type array_lst SEMI;
 
 statement:  block_statement | assign_statement
 			| if_statement |for_statement
@@ -126,11 +128,13 @@ statement:  block_statement | assign_statement
 
 assign_statement: var_name ASSIGN_OP expr SEMI;
 
-var_name: ID | ID DOT ID |ID LSB expr RSB|THIS_LIT DOT ID;
+var_name: ID | expr DOT ID |expr LSB expr RSB;
 
-if_statement: IF_LIT expr THEN_LIT statement (ELSE_LIT statement)? ;
+if_statement: IF_LIT expr THEN_LIT statement else_state;
 
-for_statement: FOR_LIT ID ASSIGN_OP expr (TO_LIT|DOWNTO_LIT) expr DO_LIT (statement|block_statement);
+else_state:ELSE_LIT statement |;
+
+for_statement: FOR_LIT ID ASSIGN_OP expr (TO_LIT|DOWNTO_LIT) expr DO_LIT statement;
 
 break_statement: BREAK_LIT SEMI;
 
@@ -138,7 +142,7 @@ continue_statement: CONT_LIT SEMI;
 
 return_statement: RETURN_LIT expr SEMI;
 
-methodcall_statement: (ID|expr) DOT ID LB expr_lst? RB SEMI ;
+methodcall_statement: expr DOT ID LB expr_lst? RB SEMI ;
 
 
 

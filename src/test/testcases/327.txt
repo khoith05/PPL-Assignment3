@@ -1,0 +1,6 @@
+class A {
+            int a, b;
+            final static float c = 2.0e-123;
+            int main() {}
+            static void checkFloat(float f) {}
+        }

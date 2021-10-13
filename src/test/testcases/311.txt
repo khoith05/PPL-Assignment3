@@ -1,0 +1,7 @@
+class add extends Expr{ 
+						int a=3,b,c=4;
+						float d=14e-2;
+						boolean e=true;
+						string f="Hello";
+						Shape s;
+					}

@@ -1,4 +1,3 @@
-class main {
-            a:integer;
-            b:integer;
-        }
+class add extends Expr{
+						int[4] a;
+					}

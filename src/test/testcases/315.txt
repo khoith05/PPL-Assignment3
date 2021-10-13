@@ -1,0 +1,6 @@
+class add extends Expr{
+						int func(){}
+						float func_1(){}
+						boolean func_2(){}
+						string func_3(){}
+		} 
