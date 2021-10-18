@@ -9,9 +9,9 @@ from BKOOLLexer import BKOOLLexer
 from BKOOLParser import BKOOLParser
 from lexererr import *
 from ASTGeneration import ASTGeneration
-'''from StaticCheck import StaticChecker
+from StaticCheck import StaticChecker
 from StaticError import *
-from CodeGenerator import CodeGenerator
+'''from CodeGenerator import CodeGenerator
 import subprocess
 '''
 JASMIN_JAR = "./external/jasmin.jar"
@@ -122,7 +122,7 @@ class TestAST:
         asttree = ASTGeneration().visit(tree)
         dest.write(str(asttree))
         dest.close()
-'''
+
 class TestChecker:
     @staticmethod
     def test(input,expect,num):       
@@ -153,7 +153,7 @@ class TestChecker:
         finally:
             dest.close()
 
-class TestCodeGen():
+'''class TestCodeGen():
     @staticmethod
     def test(input, expect, num):
         if type(input) is str:

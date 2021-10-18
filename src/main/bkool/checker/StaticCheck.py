@@ -1,7 +1,3 @@
-
-"""
- * @author nhphung
-"""
 from AST import * 
 from Visitor import *
 from Utils import Utils
@@ -17,6 +13,8 @@ class Symbol:
         self.name = name
         self.mtype = mtype
         self.value = value
+
+class RedeclareCheck(BaseVisitor)
 
 class StaticChecker(BaseVisitor,Utils):
 
