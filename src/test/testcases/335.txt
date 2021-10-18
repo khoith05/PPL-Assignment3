@@ -1,5 +1,0 @@
-class add extends Expr{
-						int main(boolean b,c,d,e,f){
-							boolean a = !b||c==d&&e;
-						}
-		} 

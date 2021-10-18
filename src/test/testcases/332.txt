@@ -1,6 +1,0 @@
-class add{
-						int main(){
-							if a then
-								a:=1;
-						}
-		} 

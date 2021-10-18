@@ -14,7 +14,7 @@ class Symbol:
         self.mtype = mtype
         self.value = value
 
-class RedeclareCheck(BaseVisitor)
+class RedeclareCheck(BaseVisitor):pass
 
 class StaticChecker(BaseVisitor,Utils):
 
@@ -27,13 +27,15 @@ class StaticChecker(BaseVisitor,Utils):
     def __init__(self,ast):
         self.ast = ast
 
- 
-    
     def check(self):
         return self.visit(self.ast,StaticChecker.global_envi)
 
+    
+
     def visitProgram(self,ast, c): 
         return [self.visit(x,c) for x in ast.decl]
+
+
 
     def visitFuncDecl(self,ast, c): 
         return list(map(lambda x: self.visit(x,(c,True)),ast.body.stmt)) 

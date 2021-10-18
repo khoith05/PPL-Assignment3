@@ -1,4 +1,0 @@
-class add{
-						float foo(int[3] a, b ,c; float[4] a,d,f){}
-		}
-		

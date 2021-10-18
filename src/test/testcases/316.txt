@@ -1,4 +1,0 @@
-class add extends Expr{
-						Shape func(){}
-						Shape[4] func_1(){}
-		} 

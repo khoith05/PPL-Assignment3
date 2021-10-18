@@ -1,1 +1,0 @@
-Program([ClassDecl(Id(add),Id(Expr),[MethodDecl(Id(main),Instance,[],IntType,Block([],[If(UnaryOp(!,Id(a)),AssignStmt(Id(b),IntLit(1)))]))])])

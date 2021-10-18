@@ -1,3 +1,0 @@
-class add {
-						int func(Shape[4] d;int[4] a; int[2] b){}
-		} 

@@ -1,5 +1,0 @@
-class add{
-						int main(){
-							this.a:=3;
-						}
-		} 

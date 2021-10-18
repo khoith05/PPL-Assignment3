@@ -1,5 +1,0 @@
-class add extends Expr{
-						int main(){
-							Shape a= new Shape(b+c,c*d,new Shape());
-						}
-		}  

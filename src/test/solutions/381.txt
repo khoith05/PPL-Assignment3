@@ -1,1 +1,0 @@
-Program([ClassDecl(Id(Add),[MethodDecl(Id(main),Instance,[],IntType,Block([],[Call(Id(sys),Id(write),[StringLit("Dfdfdfd")])]))])])

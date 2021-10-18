@@ -1,1 +1,0 @@
-Program([ClassDecl(Id(add),[MethodDecl(Id(main),Instance,[],IntType,Block([],[Block([],[Break]),Block([],[Continue])]))])])

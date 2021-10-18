@@ -1,3 +1,0 @@
-class add extends Expr{ 
-						int a,b,c;
-					}

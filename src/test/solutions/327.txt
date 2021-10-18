@@ -1,1 +1,0 @@
-Program([ClassDecl(Id(A),[AttributeDecl(Instance,VarDecl(Id(a),IntType)),AttributeDecl(Instance,VarDecl(Id(b),IntType)),AttributeDecl(Static,ConstDecl(Id(c),FloatType,FloatLit(2e-123))),MethodDecl(Id(main),Instance,[],IntType,Block([],[])),MethodDecl(Id(checkFloat),Static,[param(Id(f),FloatType)],VoidType,Block([],[]))])])

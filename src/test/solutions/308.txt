@@ -1,1 +1,0 @@
-Program([ClassDecl(Id(add),Id(Expr),[AttributeDecl(Instance,VarDecl(Id(a),IntType))])])

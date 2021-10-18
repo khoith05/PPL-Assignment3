@@ -1,8 +1,0 @@
-class add extends Expr{
-						int main(){
-							for i:=3e7 downto 12 do
-							{
-								i:=i+20;
-							}
-						}
-		} 

@@ -1,5 +1,0 @@
-class add extends Expr{
-						int main(){
-							if a<a then {} else {}
-						}
-		} 

@@ -1,1 +1,0 @@
-Program([ClassDecl(Id(add),[MethodDecl(Id(func),Instance,[param(Id(d),ClassType(Id(Shape)))],IntType,Block([],[]))])])
