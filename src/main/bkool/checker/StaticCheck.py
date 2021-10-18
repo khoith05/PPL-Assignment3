@@ -1,7 +1,14 @@
 from AST import * 
 from Visitor import *
-from Utils import Utils
 from StaticError import *
+
+class Utils:
+    def lookup(self,name,lst,func):
+        for x in lst:
+            if name == func(x):
+                return x
+        return None
+
 
 class MType:
     def __init__(self,partype,rettype):
@@ -106,14 +113,14 @@ class RedeclareCheck(BaseVisitor):
     def visitClassDecl(self, ast, c):
         #get class name
         classname=ast.classname.accept(self,c)
-        parent=ast.parentname.accept(self.c) if ast.parentname else None
+        parent=ast.memlist.accept(self,c) if ast.memlist else ""
         # check redeclared class
         print([eclass.name for eclass in c])
         if classname in [eclass.name for eclass in c]:
             raise Redeclared(Class(),classname)
         #visit class
-        class_envi=BKClass(classname,ast.parentname,[],[])
-        list(map(lambda mem: mem.accept(self,class_envi),ast.memlist))
+        class_envi=BKClass(classname,parent,[],[])
+        list(map(lambda mem: mem.accept(self,class_envi),ast.parentname))
         c+=[class_envi]
     
     def visitStatic(self, ast, c):
