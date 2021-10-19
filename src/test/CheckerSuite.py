@@ -137,27 +137,69 @@ class CheckerSuite(unittest.TestCase):
         expect="Redeclared Constant: a"
         self.assertTrue(TestChecker.test(input,expect,411))
 
-    '''def test_12(self):
-        input=""""""
-        expect=""
+    def test_12(self):
+        input="""
+            class Add{
+                int main(int a){
+                    if a==1 then {
+                        int a=3;
+                        int b,b;
+                    }
+                }
+            }
+        """
+        expect="Redeclared Variable: b"
         self.assertTrue(TestChecker.test(input,expect,412))
 
     def test_13(self):
-        input=""""""
-        expect=""
+        input="""
+            class Add{
+                int main(int a){
+                    int i;
+                    for i:=1 to 10 do {
+                        int i;
+                        int a;
+                        int b,b;
+                    }
+                }
+            }
+        """
+        expect="Redeclared Variable: b"
         self.assertTrue(TestChecker.test(input,expect,413))
 
     def test_14(self):
-        input=""""""
-        expect=""
+        input="""
+            class Add{
+                int main(int a){
+                    if a==1 then 
+                        a:=a+1;
+                    else if a==2 then {
+                        int a;
+                        int c;
+                        final float c=5.4;
+                    }
+                }
+            }
+        """
+        expect="Redeclared Constant: c"
         self.assertTrue(TestChecker.test(input,expect,414))
 
     def test_15(self):
-        input=""""""
+        input="""
+            class Add{
+                int main(int a){
+                    for a:=1 to 10 do 
+                        if a==3 then {
+                            int a;
+                            final int c=1,c=2;
+                        }
+                }
+            }
+        """
         expect=""
         self.assertTrue(TestChecker.test(input,expect,415))
 
-    def test_16(self):
+    '''def test_16(self):
         input=""""""
         expect=""
         self.assertTrue(TestChecker.test(input,expect,416))

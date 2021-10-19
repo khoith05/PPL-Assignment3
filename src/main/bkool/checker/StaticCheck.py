@@ -112,9 +112,9 @@ class RedeclareCheck(BaseVisitor):
     
     def visitClassDecl(self, ast, c):
         #get class name
-        memlist=ast.memlist
+        memlist=ast.memlist if isinstance(ast.memlist,list) else ast.parentname
         classname=ast.classname.accept(self,c)
-        parent=ast.parentname.accept(self,c) if ast.parentname else ""
+        parent=ast.parentname.accept(self,c) if  ast.parentname and isinstance(ast.parentname,Id)  else "" if ast.parentname==None else ast.memlist.accept(self,c) 
         # check redeclared class
         if classname in [eclass.name for eclass in c]:
             raise Redeclared(Class(),classname)
@@ -215,10 +215,11 @@ class RedeclareCheck(BaseVisitor):
 
     
     def visitIf(self, ast, c):
-        return None
+        ast.thenStmt.accept(self,[])
+        ast.elseStmt.accept(self,[])
     
     def visitFor(self, ast, c):
-        return None
+        ast.loop.accept(self,[])
     
     def visitContinue(self, ast, c):
         return None
