@@ -196,7 +196,7 @@ class CheckerSuite(unittest.TestCase):
                 }
             }
         """
-        expect=""
+        expect="Redeclared Constant: c"
         self.assertTrue(TestChecker.test(input,expect,415))
 
     '''def test_16(self):
