@@ -106,21 +106,21 @@ class RedeclareCheck(BaseVisitor):
         consttype=ast.constType.accept(self,c)
         #check redeclared
         if constname in [var[0] for var in c]:
-            return varname
+            return constname
         c+=[[constname,consttype]]
         return None
     
     def visitClassDecl(self, ast, c):
         #get class name
+        memlist=ast.memlist
         classname=ast.classname.accept(self,c)
-        parent=ast.memlist.accept(self,c) if ast.memlist else ""
+        parent=ast.parentname.accept(self,c) if ast.parentname else ""
         # check redeclared class
-        print([eclass.name for eclass in c])
         if classname in [eclass.name for eclass in c]:
             raise Redeclared(Class(),classname)
         #visit class
         class_envi=BKClass(classname,parent,[],[])
-        list(map(lambda mem: mem.accept(self,class_envi),ast.parentname))
+        list(map(lambda mem: mem.accept(self,class_envi),memlist))
         c+=[class_envi]
     
     def visitStatic(self, ast, c):
@@ -147,6 +147,7 @@ class RedeclareCheck(BaseVisitor):
         method_envi.partype+=[para[1] for para in paralist]
         c.funclst+=[method_envi]
         ast.body.accept(self,paralist)
+
 
 
     
@@ -209,6 +210,7 @@ class RedeclareCheck(BaseVisitor):
             if rev!=None:
                 raise Redeclared(Variable() if isinstance(decl,VarDecl) else Constant(),rev)
         list(map(checkDecl,ast.decl))
+        list(map(lambda stmt: stmt.accept(self,[]),ast.stmt))
 
 
     
@@ -277,7 +279,7 @@ class StaticChecker(BaseVisitor,Utils):
         self.ast = ast
 
     def check(self):
-        return self.visitProgram(self.ast,StaticChecker.global_envi)
+        return self.visitProgram(self.ast,[])
 
     def visitProgram(self,ast, c): 
         global_class=ast.accept(RedeclareCheck(),StaticChecker.global_envi)

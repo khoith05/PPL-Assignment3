@@ -5,10 +5,17 @@ from AST import *
 class ASTGenSuite(unittest.TestCase):
 	def test_0(self):
 		"""Simple program: class main {} """
-		input = """class add{}"""
+		input = """
+		class Add{
+                int main(){
+                    int a;
+                    final float b;
+                }
+            }
+		"""
 		expect = str(Program([ClassDecl(Id("add"),[])]))
 		self.assertTrue(TestAST.test(input,expect,300))
-	def test_1(self):
+	'''def test_1(self):
 		"""Simple program: class main {} """
 		input = """class add extends Expr{}"""
 		expect = str(Program([ClassDecl(Id("add"),[],Id("Expr"))]))
@@ -1155,6 +1162,6 @@ class ASTGenSuite(unittest.TestCase):
 						}
 		} """
 		expect = str(Program([ClassDecl(Id("add"),[MethodDecl(Instance(),Id("main"),[],IntType(),Block([],[If(BinaryOp("<",Id("a"),Id("a")),Block([],[]),Block([],[]))]))],Id("Expr"))]))
-		self.assertTrue(TestAST.test(input,expect,399))
+		self.assertTrue(TestAST.test(input,expect,399))'''
 
 

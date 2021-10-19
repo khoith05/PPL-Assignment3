@@ -64,37 +64,80 @@ class CheckerSuite(unittest.TestCase):
         expect="Redeclared Variable: a"
         self.assertTrue(TestChecker.test(input,expect,405))
 
-    '''def test_6(self):
-        input=""""""
-        expect=""
+    def test_6(self):
+        input="""
+            class Add{
+                float foo(int a){
+                    int a=6;
+                }
+            }
+        """
+        expect="Redeclared Variable: a"
         self.assertTrue(TestChecker.test(input,expect,406))
 
     def test_7(self):
-        input=""""""
-        expect=""
+        input="""
+            class Add{
+                int main(int a; float b;string a){
+                    return a;
+                }
+            }
+        """
+        expect="Redeclared Parameter: a"
         self.assertTrue(TestChecker.test(input,expect,407))
 
     def test_8(self):
-        input=""""""
-        expect=""
+        input="""
+            class Add{
+                int main(){
+                    int a=7;
+                    {
+                        int a=2;
+                        int b=1;
+                        float b;
+                    }
+                }
+            }
+        """
+        expect="Redeclared Variable: b"
         self.assertTrue(TestChecker.test(input,expect,408))
 
     def test_9(self):
-        input=""""""
-        expect=""
+        input="""
+            class Add{
+                int a;
+                final int a=7;
+            }
+        """
+        expect="Redeclared Attribute: a"
         self.assertTrue(TestChecker.test(input,expect,409))
 
     def test_10(self):
-        input=""""""
-        expect=""
+        input="""
+            class Add{
+                int main(){
+                    int a;
+                    final float a=5.2;
+                }
+            }
+        """
+        expect="Redeclared Constant: a"
         self.assertTrue(TestChecker.test(input,expect,410))
 
     def test_11(self):
-        input=""""""
-        expect=""
+        input="""
+            class Shape{}
+            class Add{
+                int main(){
+                    final int a=1;
+                    final string b="12",a="ab";
+                }
+            }
+        """
+        expect="Redeclared Constant: a"
         self.assertTrue(TestChecker.test(input,expect,411))
 
-    def test_12(self):
+    '''def test_12(self):
         input=""""""
         expect=""
         self.assertTrue(TestChecker.test(input,expect,412))
@@ -582,4 +625,3 @@ class CheckerSuite(unittest.TestCase):
     #                 CallExpr(Id("putIntLn"),[])]))])
     #     expect = "Type Mismatch In Statement: CallExpr(Id(putIntLn),List())"
     #     self.assertTrue(TestChecker.test(input,expect,405))
-    
