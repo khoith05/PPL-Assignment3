@@ -3,11 +3,16 @@ from TestUtils import TestChecker
 from AST import *
 
 class CheckerSuite(unittest.TestCase):
-    # def test_(self):
-    #     input="""
-    #       """
-    #     expect=""
-    #     self.assertTrue(TestChecker.test(input,expect,0))
+    def test_0(self):
+        input="""
+        class Add{
+            int a;
+            float a;
+        }
+          """
+        
+        expect="Redeclared Attribute: a"
+        self.assertTrue(TestChecker.test(input,expect,400))
 
     def test_1(self):
         input="""
@@ -130,7 +135,7 @@ class CheckerSuite(unittest.TestCase):
             class Add{
                 int main(){
                     final int a=1;
-                    final string b="12",a="ab";
+                    final string b=\"12\",a=\"ab\";
                 }
             }
         """
@@ -199,52 +204,156 @@ class CheckerSuite(unittest.TestCase):
         expect="Redeclared Constant: c"
         self.assertTrue(TestChecker.test(input,expect,415))
 
-    '''def test_16(self):
-        input=""""""
-        expect=""
+    def test_16(self):
+        input="""
+        class Add{
+            Shape a;
+        }
+        """
+        expect="Undeclared Class: Shape"
         self.assertTrue(TestChecker.test(input,expect,416))
 
     def test_17(self):
-        input=""""""
-        expect=""
+        input="""
+        class Add{
+            int main(){
+                a:=2;
+            }
+        }
+        """
+        expect="Undeclared Identifier: a"
         self.assertTrue(TestChecker.test(input,expect,417))
 
     def test_18(self):
-        input=""""""
-        expect=""
+        input="""
+        class Add{
+            int main(int a){
+                int b;
+                b:=c;
+            }
+        }
+        """
+        expect="Undeclared Identifier: c"
         self.assertTrue(TestChecker.test(input,expect,418))
 
     def test_19(self):
-        input=""""""
-        expect=""
+        input="""
+        class Add{
+            int main(){
+                this.a:=1;
+            }
+        }
+        """
+        expect="Undeclared Attribute: a"
         self.assertTrue(TestChecker.test(input,expect,419))
 
     def test_20(self):
-        input=""""""
-        expect=""
+        input="""
+        class Shape{
+
+        }
+        class Add extends Shape{
+            Shape foo=new Shape();
+            int main(){
+                foo.a();
+            }
+        }
+        """
+        expect="Undeclared Method: a"
         self.assertTrue(TestChecker.test(input,expect,420))
 
     def test_21(self):
-        input=""""""
-        expect=""
+        input="""
+        class Shape{
+
+        }
+        class Add extends Shape{
+            Shape foo=new Shape();
+            int main(){
+                this.foo.a:=1;
+            }
+        }
+        """
+        expect="Undeclared Attribute: a"
         self.assertTrue(TestChecker.test(input,expect,421))
 
     def test_22(self):
-        input=""""""
-        expect=""
+        input="""
+        class Shape{
+
+        }
+        class Add extends Shape{
+            Shape foo=new Shape();
+            int a;
+            int main(){
+                this.a:=7;
+                Shape.a();
+            }
+        }
+        """
+        expect="Undeclared Method: a"
         self.assertTrue(TestChecker.test(input,expect,422))
 
     def test_23(self):
-        input=""""""
-        expect=""
+        input="""
+        class Shape{
+
+        }
+        class Add extends Shape{
+            Shape foo=new Shape();
+            int main(){
+                foo.a:=0;
+            }
+        }
+        """
+        expect="Undeclared Attribute: a"
         self.assertTrue(TestChecker.test(input,expect,423))
 
     def test_24(self):
-        input=""""""
-        expect=""
+        input="""
+        class Shape {
+            float a;
+            static float b;
+            final float c=5.5;
+            Add d=new Add();
+            Sub e=new Sub();
+            Shape(float a; int b){
+                this.a:=a;
+                Shape.b:=b;
+            }
+            void foo(int a){
+            }
+            static float getb(){
+                Shape.b:=Shape.b+this.a;
+                return Shape.b;
+            }
+            
+        }
+        class Sub extends Shape{
+            Shape a= new Shape();
+            void func(){
+                a.foo();
+                Shape.getb();
+
+            }
+        }
+        class Add extends Sub{
+            int main(){
+                Shape A;
+                a.foo();
+                c:=a.a+Shape.b;
+                A:=new Add();
+                A:=a.foo();
+
+                
+            }
+            
+        }
+        """
+        expect="Type Mismatch In Expression: Call(Id(a),Id(foo),[])"
         self.assertTrue(TestChecker.test(input,expect,424))
 
-    def test_25(self):
+    '''def test_25(self):
         input=""""""
         expect=""
         self.assertTrue(TestChecker.test(input,expect,425))
