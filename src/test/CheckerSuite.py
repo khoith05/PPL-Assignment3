@@ -813,7 +813,7 @@ class CheckerSuite(unittest.TestCase):
         }
         
         """
-        expect=""
+        expect="Type Mismatch In Expression: ArrayCell(Id(a),IntLit(1))"
         self.assertTrue(TestChecker.test(input,expect,446))
 
     def test_47(self):
@@ -825,7 +825,7 @@ class CheckerSuite(unittest.TestCase):
             }
         }
         """
-        expect=""
+        expect="Type Mismatch In Expression: ArrayCell(Id(a),FloatLit(1.2))"
         self.assertTrue(TestChecker.test(input,expect,447))
 
     def test_48(self):
@@ -838,7 +838,7 @@ class CheckerSuite(unittest.TestCase):
             }
         }
         """
-        expect=""
+        expect="Type Mismatch In Expression: ArrayCell(Id(a),Id(b))"
         self.assertTrue(TestChecker.test(input,expect,448))
 
     def test_49(self):
@@ -851,7 +851,7 @@ class CheckerSuite(unittest.TestCase):
             }
         }
         """
-        expect=""
+        expect="Type Mismatch In Expression: ArrayCell(Id(a),StringLit(\"2\"))"
         self.assertTrue(TestChecker.test(input,expect,449))
 
     def test_50(self):
@@ -863,7 +863,7 @@ class CheckerSuite(unittest.TestCase):
             }
         }
         """
-        expect=""
+        expect="Type Mismatch In Expression: ArrayCell(Id(a),IntLit(2))"
         self.assertTrue(TestChecker.test(input,expect,450))
 
     def test_51(self):
@@ -890,7 +890,7 @@ class CheckerSuite(unittest.TestCase):
             }
         }
         """
-        expect=""
+        expect="Type Mismatch In Statement: AssignStmt(Id(a),BinaryOp(/,IntLit(4),IntLit(5)))"
         self.assertTrue(TestChecker.test(input,expect,451))
 
     def test_52(self):
@@ -906,7 +906,7 @@ class CheckerSuite(unittest.TestCase):
                 c:=3.3/5.5;
                 b:=5.5<5.6;
                 b:=5.5>5.6;
-                b:5.5>=5.6;
+                b:=5.5>=5.6;
                 b:=5.5<=5.6;
                 c:=1+a;
                 c:=1.1+a;
@@ -921,7 +921,7 @@ class CheckerSuite(unittest.TestCase):
             }
         }
         """
-        expect=""
+        expect="Type Mismatch In Expression: BinaryOp(==,Id(a),Id(b))"
         self.assertTrue(TestChecker.test(input,expect,452))
 
     def test_53(self):
@@ -939,20 +939,20 @@ class CheckerSuite(unittest.TestCase):
             }
         }
         """
-        expect=""
+        expect="Type Mismatch In Statement: AssignStmt(Id(b),BinaryOp(+,Id(b),Id(c)))"
         self.assertTrue(TestChecker.test(input,expect,453))
 
     def test_54(self):
         input="""
         class Add{
-            int main{
+            int main(){
                 string a=\"b\",b=\"c\";
                 a:=b^\"sdf\";
                 a:=1^b;
             }
         }
         """
-        expect=""
+        expect="Type Mismatch In Expression: BinaryOp(^,IntLit(1),Id(b))"
         self.assertTrue(TestChecker.test(input,expect,454))
 
     def test_55(self):
@@ -964,7 +964,7 @@ class CheckerSuite(unittest.TestCase):
             }
         }
         """
-        expect=""
+        expect="Type Mismatch In Expression: FieldAccess(Id(a),Id(b))"
         self.assertTrue(TestChecker.test(input,expect,455))
 
     def test_56(self):
@@ -977,7 +977,7 @@ class CheckerSuite(unittest.TestCase):
             }
         }
         """
-        expect=""
+        expect="Type Mismatch In Expression: CallExpr(Self(),Id(foo),[])"
         self.assertTrue(TestChecker.test(input,expect,456))
 
     def test_57(self):
@@ -993,25 +993,63 @@ class CheckerSuite(unittest.TestCase):
             }
         }
         """
-        expect=""
+        expect="Type Mismatch In Expression: CallExpr(Id(a),Id(foo),[])"
         self.assertTrue(TestChecker.test(input,expect,457))
 
-    '''def test_58(self):
-        input=""""""
+    def test_58(self):
+        input="""
+        class Shape{
+            Shape(int a; float b){
+
+            }
+        }
+        class Add extends Shape{
+            int main(){
+                Add a=new Add(4,5.6);
+                Add a=new Add(4,5);
+                Add a=new Add(4,5,6);
+            }
+        }
+        """
         expect=""
         self.assertTrue(TestChecker.test(input,expect,458))
 
     def test_59(self):
-        input=""""""
+        input="""
+        class Shape{
+            int foo(int a,b,c){}
+            Shape(int a; float b){
+
+            }
+        }
+        class Add {
+            int main(){
+                Shape a=new Shape(4,5);
+                a.foo(1.1,2,3);
+            }
+        }"""
         expect=""
         self.assertTrue(TestChecker.test(input,expect,459))
 
     def test_60(self):
-        input=""""""
+        input="""
+        class Shape{
+            static int foo(Add a,b,c){}
+            Shape(int a; float b){
+
+            }
+        }
+        class Add {
+            int main(){
+                Shape a=new Shape(4,5);
+                int c=Shape.foo(new Add(),new Add(),new Add());
+                Shape.foo(new Add(),new Add(),c);
+            }
+        }"""
         expect=""
         self.assertTrue(TestChecker.test(input,expect,460))
 
-    def test_61(self):
+    '''def test_61(self):
         input=""""""
         expect=""
         self.assertTrue(TestChecker.test(input,expect,461))

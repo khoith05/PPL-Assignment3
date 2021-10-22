@@ -1,6 +1,7 @@
 from AST import * 
 from Visitor import *
 from StaticError import *
+from functools import reduce
 
 class Utils:
     def lookup(self,name,lst,func):
@@ -256,19 +257,11 @@ class RedeclareCheck(BaseVisitor):
 
     
     def visitIf(self, ast, c):
-        typeexpr=ast.expr.accept(self,c)
-        if isinstance(typeexpr, BoolType):
-            raise TypeMismatchInStatement(ast)
         ast.thenStmt.accept(self,[])
         if ast.elseStmt:
             ast.elseStmt.accept(self,[])
     
     def visitFor(self, ast, c):
-        typeid=ast.id.accept(self,c)
-        typeexp1=ast.expr1.accept(self,c)
-        typeexp2=ast.expr2.accept(self,c)
-        if not isinstance(typeid, IntType) or not isinstance(typeexp1, IntType) or not isinstance(typeexp2, IntType):
-            raise TypeMismatchInStatement(ast)
         ast.loop.accept(self,[])
 
 class UndeclaredCheck(BaseVisitor,Utils):
@@ -307,6 +300,7 @@ class UndeclaredCheck(BaseVisitor,Utils):
         typedecl=ast.varType.accept(self,c)
         if ast.varInit!=None:
             typevar=ast.varInit.accept(self,c)
+            self.compare(typedecl, typevar,ast,TypeMismatchInExpression)
         return Var(ast.variable.name,typedecl,False,False)
 
     
@@ -376,7 +370,7 @@ class UndeclaredCheck(BaseVisitor,Utils):
 
     def visitBlock(self, ast, c):
         #get var declared list
-        varlst=list(map(lambda x:x.accept(self,[c[0],c[1],c[2]]),ast.decl))
+        varlst=reduce(lambda y,x:[x.accept(self,[c[0],c[1],c[2]+y])]+y,ast.decl,[])
         #visit statements
         def vsStmt(x):
             if isinstance(x, Return):
@@ -414,21 +408,26 @@ class UndeclaredCheck(BaseVisitor,Utils):
         leftType=ast.left.accept(self,c)
         rightType=ast.right.accept(self,c)
         if ast.op in ["+","-","*","/"]:
-            if leftType==rightType and leftType==IntType() and ast.op!="/":
+            if (type(leftType)==type(rightType) and leftType==rightType ) and isinstance(leftType, IntType) and ast.op!="/":
                 return IntType()
             elif leftType in [IntType(),FloatType()] and rightType in [IntType(),FloatType()]:
                 return FloatType()
         elif ast.op in ["<",">",">=","<="]:
-            if leftType in [IntType(),FloatType()] and rightType in [IntType(),FloatType()]:
+            if isinstance(leftType, (IntType,FloatType)) and isinstance(rightType, (IntType,FloatType)):
                 return BoolType()
-        elif ast.op in ["==","!=","\\","%"]:
-            if leftType==rightType and leftType==IntType():
+        elif ast.op in ["==","!="]:
+            if (type(leftType)==type(rightType) and leftType==rightType ) and isinstance(leftType, IntType):
                 return BoolType()
-        elif ast.op in ["==","!=","&&","||"]:
-            if leftType==rightType and leftType==BoolType():
+            elif (type(leftType)==type(rightType) and leftType==rightType ) and isinstance(leftType, BoolType):
+                return BoolType()
+        elif ast.op in ["\\","%"]:
+            if (type(leftType)==type(rightType) and leftType==rightType ) and isinstance(leftType, IntType):
+                return IntType()
+        elif ast.op in ["&&","||"]:
+            if (type(leftType)==type(rightType) and leftType==rightType ) and isinstance(leftType, BoolType):
                 return BoolType()
         elif ast.op=="^":
-            if leftType==rightType and leftType==StringType():
+            if (type(leftType)==type(rightType) and leftType==rightType ) and isinstance(leftType, StringType):
                 return StringType()
         raise TypeMismatchInExpression(ast)
 
@@ -437,10 +436,10 @@ class UndeclaredCheck(BaseVisitor,Utils):
     def visitUnaryOp(self, ast, c):
         uType=ast.body.accept(self,c)
         if ast.op in ["+","-"]:
-            if uType==IntType():
+            if isinstance(uType, IntType):
                 return IntType()
         elif ast.op =="!":
-            if uType==BoolType():
+            if isinstance(uType, BoolType):
                 return BoolType()
         raise TypeMismatchInExpression(ast)
     
@@ -561,7 +560,7 @@ class UndeclaredCheck(BaseVisitor,Utils):
         idType=ast.id.accept(self,c)
         e1Type=ast.expr1.accept(self,c)
         e2Type=ast.expr2.accept(self,c)
-        if idType!=IntType() or e1Type!=IntType() or e2Type!=IntType():
+        if not isinstance(idType, IntType) or not isinstance(e1Type, IntType) or not isinstance(e2Type, IntType):
             raise TypeMismatchInStatement(ast)
         ast.loop.accept(self,c)
     
