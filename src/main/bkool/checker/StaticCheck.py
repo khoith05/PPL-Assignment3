@@ -256,16 +256,37 @@ class RedeclareCheck(BaseVisitor):
 
     
     def visitIf(self, ast, c):
+        typeexpr=ast.expr.accept(self,c)
+        if isinstance(typeexpr, BoolType):
+            raise TypeMismatchInStatement(ast)
         ast.thenStmt.accept(self,[])
         if ast.elseStmt:
             ast.elseStmt.accept(self,[])
     
     def visitFor(self, ast, c):
+        typeid=ast.id.accept(self,c)
+        typeexp1=ast.expr1.accept(self,c)
+        typeexp2=ast.expr2.accept(self,c)
+        if not isinstance(typeid, IntType) or not isinstance(typeexp1, IntType) or not isinstance(typeexp2, IntType):
+            raise TypeMismatchInStatement(ast)
         ast.loop.accept(self,[])
 
 class UndeclaredCheck(BaseVisitor,Utils):
 
-    
+    def compare(self,type1,type2,ast,Error):
+            if isinstance(type1, BKArraytype) and isinstance(type2, BKArraytype) and type1==type2:
+                return True
+            if isinstance(type1, FloatType) and isinstance(type2, IntType):
+                return True
+            if isinstance(type1,str) and isinstance(type2,str) and type1!=type2:
+                findtype2=self.lookup(type2,c[1],lambda x:x.name)
+                if findtype2.isSubclass(type1):
+                    return True 
+            if type(type1)!=type(type2):
+                raise Error(ast)
+            if type1==type2:
+                return True
+            raise Error(ast)
 
     def visitProgram(self, ast, c):
         #Check parent undeclared
@@ -283,14 +304,20 @@ class UndeclaredCheck(BaseVisitor,Utils):
 
     
     def visitVarDecl(self, ast, c):
+        typedecl=ast.varType.accept(self,c)
         if ast.varInit!=None:
-            ast.varInit.accept(self,c)
-        return Var(ast.variable.name,ast.varType.accept(self,c),False,False)
+            typevar=ast.varInit.accept(self,c)
+        return Var(ast.variable.name,typedecl,False,False)
 
     
     def visitConstDecl(self, ast, c):
         #check init
-        return Var(ast.constant.name,ast.constType.accept(self,c),False,True)
+        typedecl=ast.constType.accept(self,c)
+        if ast.value:
+            typeconst=ast.value.accept(self,c)
+            self.compare(typedecl, typeconst,ast,TypeMismatchInConstant)
+
+        return Var(ast.constant.name,typedecl,False,True)
     
     def visitClassDecl(self, ast, c):
         def checkClasstype(classtype):
@@ -341,7 +368,7 @@ class UndeclaredCheck(BaseVisitor,Utils):
         #get parameterlist
         paramlst=list(map(lambda x: x.accept(self,c),ast.param))
         #visit body
-        ast.body.accept(self,[c[0],c[1],paramlst])
+        ast.body.accept(self,[c[0],c[1],paramlst,this_method.bktype])
 
     
     def visitAttributeDecl(self, ast, c):
@@ -349,9 +376,14 @@ class UndeclaredCheck(BaseVisitor,Utils):
 
     def visitBlock(self, ast, c):
         #get var declared list
-        varlst=list(map(lambda x:x.accept(self,c),ast.decl))
+        varlst=list(map(lambda x:x.accept(self,[c[0],c[1],c[2]]),ast.decl))
         #visit statements
-        list(map(lambda x: x.accept(self,[c[0],c[1],c[2]+varlst]),ast.stmt))
+        def vsStmt(x):
+            if isinstance(x, Return):
+                x.accept(self,[c[0],c[1],c[2]+varlst,c[3]])
+            else:
+                x.accept(self,[c[0],c[1],c[2]+varlst])
+        list(map(vsStmt,ast.stmt))
 
     
     def visitIntType(self, ast, c):
@@ -377,28 +409,7 @@ class UndeclaredCheck(BaseVisitor,Utils):
         if self.lookup(classtype,c[1],lambda x:x.name)==None:
             raise Undeclared(Class(),classtype)
         return classtype
-
-    def findId(self,idname,c):
-        varlst=c[0]
-        this_class=c[2]
-        findInMethod=self.lookup(idname,varlst,lambda x:x.name)
-        if findInMethod !=None:
-            return findInMethod
-        else:
-            findInClass=self.lookup(idname,this_class.varlst,lambda x:x.name)
-            if findInClass!=None:
-                return findInClass
-        return None
-
-    def checkAndfindId(self,ast,c):
-        if isinstance(ast,Id):
-            rev=self.findId(ast.name,c)
-            if rev==None:
-                raise Undeclared(Identifier(),ast.name)
-            else:
-                return rev
-        return None
-    
+ 
     def visitBinaryOp(self, ast, c):
         leftType=ast.left.accept(self,c)
         rightType=ast.right.accept(self,c)
@@ -456,24 +467,15 @@ class UndeclaredCheck(BaseVisitor,Utils):
                 raise Undeclared(Method(),ast.method.name)
         if findmethod.isstatic!=objStatic:
             raise IllegalMemberAccess(ast)
+        if isinstance(findmethod.bktype, VoidType):
+            raise TypeMismatchInExpression(ast)
         #get paramlist
         paramlst=list(map(lambda x:x.accept(self,c),ast.param))
-        def compare2(type1,type2):
-            if type(type1)!=type(type2):
-                raise TypeMismatchInExpression(ast)
-            #thiếu array
-            if isinstance(type1,str) and isinstance(type2,str) and type1!=type2:
-                findtype2=self.lookup(type2,c[1],lambda x:x.name)
-                if findtype2.isSubclass(type1):
-                    return True 
-            elif type1==type2:
-                return True
-            raise TypeMismatchInExpression(ast)
+
         if len(findmethod.partype)!=len(paramlst):
             raise TypeMismatchInExpression(ast)
-        list(map(compare2,findmethod.partype,paramlst))
-        if isinstance(findmethod.bktype,VoidType):
-            raise TypeMismatchInExpression(ast)
+        lenparam=len(paramlst)
+        list(map(self.compare,findmethod.partype,paramlst,[ast for x in range(lenparam)],[TypeMismatchInExpression for x in range(lenparam)]))
         return findmethod.bktype
 
 
@@ -491,16 +493,8 @@ class UndeclaredCheck(BaseVisitor,Utils):
             raise TypeMismatchInExpression(ast)
         elif len(classcalled.construct.partype)!=len(paramlst):
             raise TypeMismatchInExpression(ast)
-        def compare2(type1,type2):
-            #thiếu array
-            if type1!=type2 and isinstance(type1,str) and (isinstance,type2):
-                findtype2=self.lookup(type2,c[1],lambda x:x.name)
-                if findtype2.isSubclass(type1):
-                    return True 
-            elif type1==type2:
-                return True
-            raise TypeMismatchInExpression(ast)
-        list(map(compare2,classcalled.construct.partype,paramlst))
+        lenparam=len(paramlst)
+        list(map(self.compare,classcalled.construct.partype,paramlst,[ast for x in range(lenparam)],[TypeMismatchInExpression for x in range(lenparam)]))
         return ast.classname.name
 
         
@@ -579,22 +573,28 @@ class UndeclaredCheck(BaseVisitor,Utils):
     
     def visitReturn(self, ast, c):
         if ast.expr:
-            ast.expr.accept(self,c)
+            typere=ast.expr.accept(self,[c[0],c[1],c[2]])
+            self.compare(c[3], typere,ast,TypeMismatchInStatement)
+
     
     def visitAssign(self, ast, c):
-        leftType=ast.lhs.accept(self,c)
-        eType=ast.exp.accept(self,c)
-        if type(leftType)==type(eType) and leftType==eType:
-            return
-        if isinstance(leftType,FloatType) and isinstance(eType,IntType):
-            return 
-        if isinstance(leftType,str) and isinstance(eType,str):
-            findeType=self.lookup(eType,c[1],lambda x:x.name)
-            if findeType==None:
-                raise Undeclared(Class(),eType)
-            if findeType.isSubclass(leftType):
-                return
-        raise TypeMismatchInStatement(ast)
+        type1=ast.lhs.accept(self,c)
+        type2=ast.exp.accept(self,c)
+        if isinstance(type1, VoidType):
+            raise TypeMismatchInStatement(ast)
+        if isinstance(type1, BKArraytype) and isinstance(type2, BKArraytype) and type1==type2:
+            return True
+        if isinstance(type1, FloatType) and isinstance(type2, IntType):
+            return True
+        if isinstance(type1,str) and isinstance(type2,str) and type1!=type2:
+            findtype2=self.lookup(type2,c[1],lambda x:x.name)
+            if findtype2.isSubclass(type1):
+                return True 
+        if type(type1)!=type(type2):
+            raise TypeMismatchInStatement(ast)
+        if type1==type2:
+            return True
+        raise TypeMismatchInStatement(ast)      
     
     def visitCallStmt(self, ast, c):
         if isinstance(ast.obj,Id) and self.lookup(ast.obj.name,c[1],lambda x:x.name):
@@ -619,18 +619,11 @@ class UndeclaredCheck(BaseVisitor,Utils):
             raise IllegalMemberAccess(ast)
         #get paramlist
         paramlst=list(map(lambda x:x.accept(self,c),ast.param))
-        def compare2(type1,type2):
-            #thiếu array
-            if type1!=type2 and isinstance(type1,str) and (isinstance,type2):
-                findtype2=self.lookup(type2,c[1],lambda x:x.name)
-                if findtype2.isSubclass(type1):
-                    return True 
-            elif type1==type2:
-                return True
-            raise TypeMismatchInExpression(ast)
+
         if len(findmethod.partype)!=len(paramlst):
             raise TypeMismatchInExpression(ast)
-        list(map(compare2,findmethod.partype,paramlst))
+        lenparam=len(paramlst)
+        list(map(self.compare,findmethod.partype,paramlst,[ast for x in range(lenparam)],[TypeMismatchInStatement for x in range(lenparam)]))
     
     def visitIntLiteral(self, ast, c):
         return IntType()

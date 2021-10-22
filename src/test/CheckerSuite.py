@@ -805,68 +805,198 @@ class CheckerSuite(unittest.TestCase):
 
     def test_46(self):
         input="""
-        
+        class Add{
+            int main(){
+                int a;
+                a[1]:=3;
+            }
+        }
         
         """
         expect=""
         self.assertTrue(TestChecker.test(input,expect,446))
 
     def test_47(self):
-        input=""""""
+        input="""
+        class Add{
+            void main(){
+                int[4] a;
+                a[1.2]:=3;
+            }
+        }
+        """
         expect=""
         self.assertTrue(TestChecker.test(input,expect,447))
 
     def test_48(self):
-        input=""""""
+        input="""
+        class Add{
+            void main(){
+                int[4] a;
+                float b=2.0;
+                a[b]:=3;
+            }
+        }
+        """
         expect=""
         self.assertTrue(TestChecker.test(input,expect,448))
 
     def test_49(self):
-        input=""""""
+        input="""
+        class Add{
+            void main(){
+                int[4] a;
+                float b=2.0;
+                a[\"2\"]:=3;
+            }
+        }
+        """
         expect=""
         self.assertTrue(TestChecker.test(input,expect,449))
 
     def test_50(self):
-        input=""""""
+        input="""
+        class Add{
+            void main(){
+                Add a;
+                a[2]:=3;
+            }
+        }
+        """
         expect=""
         self.assertTrue(TestChecker.test(input,expect,450))
 
     def test_51(self):
-        input=""""""
+        input="""
+        class Add{
+            void main(){
+                int a=1+1;
+                boolean b;
+                float c;
+                a:=2*3;
+                a:=4-3;
+                b:=a>c;
+                b:=a<c;
+                b:=a<=c;
+                b:=a>=c;
+                b:=a==3;
+                b:=a!=4;
+                a:=5\\6;
+                a:=7%3;
+                a:=-a;
+                a:=+a;
+                a:=4/5;
+
+            }
+        }
+        """
         expect=""
         self.assertTrue(TestChecker.test(input,expect,451))
 
     def test_52(self):
-        input=""""""
+        input="""
+        class Add{
+            void main(){
+                int a;
+                boolean b;
+                float c;
+                c:=1.1+3.3;
+                c:=4.4-5;
+                c:=1.3*2.3;
+                c:=3.3/5.5;
+                b:=5.5<5.6;
+                b:=5.5>5.6;
+                b:5.5>=5.6;
+                b:=5.5<=5.6;
+                c:=1+a;
+                c:=1.1+a;
+                c:=1+1.1;
+                c:=a*12.2;
+                c:=a/7;
+                b:=a>c;
+                b:=a<c;
+                b:=a<=c;
+                b:=a>=c;
+                b:=a==b;
+            }
+        }
+        """
         expect=""
         self.assertTrue(TestChecker.test(input,expect,452))
 
     def test_53(self):
-        input=""""""
+        input="""
+        class Add{
+            void main(){
+                boolean a,b,c;
+                b:=a==b;
+                b:=a!=c;
+                b:=a&&c;
+                b:=a||c;
+                b:=!b;
+                b:=b+c;
+
+            }
+        }
+        """
         expect=""
         self.assertTrue(TestChecker.test(input,expect,453))
 
     def test_54(self):
-        input=""""""
+        input="""
+        class Add{
+            int main{
+                string a=\"b\",b=\"c\";
+                a:=b^\"sdf\";
+                a:=1^b;
+            }
+        }
+        """
         expect=""
         self.assertTrue(TestChecker.test(input,expect,454))
 
     def test_55(self):
-        input=""""""
+        input="""
+        class Add{
+            int main(){
+                int a;
+                a.b:=6;
+            }
+        }
+        """
         expect=""
         self.assertTrue(TestChecker.test(input,expect,455))
 
     def test_56(self):
-        input=""""""
+        input="""
+        class Add{
+            void foo(){}
+            int main(){
+                Add a;
+                a:=this.foo();
+            }
+        }
+        """
         expect=""
         self.assertTrue(TestChecker.test(input,expect,456))
 
     def test_57(self):
-        input=""""""
+        input="""
+        class Shape{
+            void foo(){}
+        }
+        class Add{
+            void foo(){}
+            int main(){
+                Shape a=new Shape();
+                int b=a.foo();
+            }
+        }
+        """
         expect=""
         self.assertTrue(TestChecker.test(input,expect,457))
 
-    def test_58(self):
+    '''def test_58(self):
         input=""""""
         expect=""
         self.assertTrue(TestChecker.test(input,expect,458))
@@ -1074,7 +1204,7 @@ class CheckerSuite(unittest.TestCase):
     def test_99(self):
         input=""""""
         expect=""
-        self.assertTrue(TestChecker.test(input,expect,499))"""
+        self.assertTrue(TestChecker.test(input,expect,499))'''
 
 
 
