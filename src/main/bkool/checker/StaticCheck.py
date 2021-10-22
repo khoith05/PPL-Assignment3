@@ -26,7 +26,7 @@ class BKArraytype:
         self.artype=artype
         self.size=size
     def isClass(self):
-        return isinstance(self.bktype,str)
+        return isinstance(self.artype,str)
     def __str__(self):
         return "{ size: "+self.size+",type: "+str(self.artype)+"}"
     def __eq__(self,other):
@@ -257,7 +257,8 @@ class RedeclareCheck(BaseVisitor):
     
     def visitIf(self, ast, c):
         ast.thenStmt.accept(self,[])
-        ast.elseStmt.accept(self,[])
+        if ast.elseStmt:
+            ast.elseStmt.accept(self,[])
     
     def visitFor(self, ast, c):
         ast.loop.accept(self,[])
@@ -282,32 +283,16 @@ class UndeclaredCheck(BaseVisitor,Utils):
 
     
     def visitVarDecl(self, ast, c):
+        if ast.varInit!=None:
+            ast.varInit.accept(self,c)
         return Var(ast.variable.name,ast.varType.accept(self,c),False,False)
 
     
     def visitConstDecl(self, ast, c):
+        #check init
         return Var(ast.constant.name,ast.constType.accept(self,c),False,True)
     
     def visitClassDecl(self, ast, c):
-        # #get class name
-        # memlist=ast.memlist if isinstance(ast.memlist,list) else ast.parentname
-        # classname=ast.classname.name
-        # parent=ast.parentname.name if  ast.parentname and isinstance(ast.parentname,Id)  else "" if ast.parentname==None else ast.memlist.name
-        
-        # # get class from global_envi
-        # this_class=self.lookup(classname,c,lambda x: x.name)
-
-        # parclassname=parent
-        # while parclassname!="":
-        #     #find parent class from global_envi
-        #     parclass=self.lookup(parclassname,c,lambda x: x.name)
-        #     #can't find out parent class->undeclared
-        #     if parclass==None:
-        #         raise Undeclared(Class(),parclassname)
-        #     parclassname=parclass.parent
-        # #visit member
-        # list(map(lambda mem:mem.accept(self,[this_class,c]),memlist))
-                    ############################
         def checkClasstype(classtype):
             if isinstance(classtype,str):
                 classname=classtype 
@@ -335,20 +320,6 @@ class UndeclaredCheck(BaseVisitor,Utils):
         return None
     
     def visitMethodDecl(self, ast, c):
-        # this_class=c[0]
-        # global_envi=c[1]
-        # #check undeclare rettype
-        # ast.returnType.accept(self,global_envi)
-        # #get method from this_clas
-        # methodName=ast.name.name
-        # this_method=self.lookup(methodName,this_class.funclst,lambda x: x.name)
-        # #get param and var list
-        # paramlst=list(map(lambda vardecl: Var(vardecl.variable.name,vardecl.varType.accept(self,global_envi),False,False),ast.param))
-        # #visit body
-
-        # ast.body.accept(self,[paramlst,this_method,this_class,[],global_envi])
-
-                #######################
         def checkClasstype(classtype):
             if isinstance(classtype,str):
                 classname=classtype 
@@ -356,7 +327,7 @@ class UndeclaredCheck(BaseVisitor,Utils):
                 classname=classtype.artype
             else:
                 return
-            findclass=self.lookup(classname,c,lambda x:x.name)
+            findclass=self.lookup(classname,c[1],lambda x:x.name)
             if findclass==None:
                 raise Undeclared(Class(),classname)
 
@@ -374,27 +345,9 @@ class UndeclaredCheck(BaseVisitor,Utils):
 
     
     def visitAttributeDecl(self, ast, c):
-        return None
+        ast.decl.accept(self,c)
 
     def visitBlock(self, ast, c):
-        # paramlst=c[0]
-        # this_method=c[1]
-        # this_class=c[2]
-        # class_hierarchy=c[3]
-        # global_envi=c[4]
-        
-
-        # #get varlist
-        # def getVar(decl):
-        #     if isinstance(decl,VarDecl):
-        #         return Var(decl.variable.name,decl.varType.accept(self,global_envi),False,False)
-        #     elif isinstance(decl,ConstDecl):
-        #         return Var(decl.constant.name,decl.constType.accept(self,global_envi),False,True)
-        # varlst=list(map(getVar,ast.decl))
-        # #visit stmt
-        # list(map(lambda stmt: stmt.accept(self,[paramlst+varlst,this_method,this_class,class_hierarchy,global_envi]),ast.stmt))
-                    #####################
-
         #get var declared list
         varlst=list(map(lambda x:x.accept(self,c),ast.decl))
         #visit statements
@@ -421,7 +374,7 @@ class UndeclaredCheck(BaseVisitor,Utils):
     
     def visitClassType(self, ast, c):
         classtype=ast.classname.name 
-        if self.lookup(classtype,c,lambda x:x.name)==None:
+        if self.lookup(classtype,c[1],lambda x:x.name)==None:
             raise Undeclared(Class(),classtype)
         return classtype
 
@@ -481,28 +434,8 @@ class UndeclaredCheck(BaseVisitor,Utils):
         raise TypeMismatchInExpression(ast)
     
     def visitCallExpr(self, ast, c):
-        # varlst=c[0]
-        # this_method=c[1]
-        # this_class=c[2]
-        # class_hierarchy=c[3]
-        # global_envi=c[4]
-
-        # self.checkAndfindId(ast.obj,c)
-        # classname=ast.obj.accept(self)
-
-        # classcalled=self.lookup(classname,global_envi,lambda x:x.name)
-        # methodcalled=classcalled.findFunc(ast.method.name)
-        # if methodcalled==None:
-        #     raise Undeclared(Method(),ast.method.name)
-        # def foo(param):
-        #     self.checkAndfindId(param,c)
-        #     param.accept(self,c)
-        # list(map(foo,ast.param))
-
-        # return methodcalled.bktype
-                ################
-
         #check obj kind and get class
+
         if isinstance(ast.obj,Id) and self.lookup(ast.obj.name,c[1],lambda x:x.name):
             objStatic=True 
             classcalled=self.lookup(ast.obj.name,c[1],lambda x:x.name)
@@ -526,8 +459,10 @@ class UndeclaredCheck(BaseVisitor,Utils):
         #get paramlist
         paramlst=list(map(lambda x:x.accept(self,c),ast.param))
         def compare2(type1,type2):
+            if type(type1)!=type(type2):
+                raise TypeMismatchInExpression(ast)
             #thiếu array
-            if type1!=type2 and isinstance(type1,str) and (isinstance,type2):
+            if isinstance(type1,str) and isinstance(type2,str) and type1!=type2:
                 findtype2=self.lookup(type2,c[1],lambda x:x.name)
                 if findtype2.isSubclass(type1):
                     return True 
@@ -537,31 +472,13 @@ class UndeclaredCheck(BaseVisitor,Utils):
         if len(findmethod.partype)!=len(paramlst):
             raise TypeMismatchInExpression(ast)
         list(map(compare2,findmethod.partype,paramlst))
-        if findmethod.bktype==VoidType():
+        if isinstance(findmethod.bktype,VoidType):
             raise TypeMismatchInExpression(ast)
         return findmethod.bktype
 
 
     
     def visitNewExpr(self, ast, c):
-        # # varlst=c[0]
-        # # this_method=c[1]
-        # # this_class=c[2]
-        # # class_hierarchy=c[3]
-        # global_envi=c[4]
-
-        # classname=ast.classname.name
-        # if self.lookup(classname,global_envi,lambda x:x.name)==None:
-        #     raise Undeclared(Class(),classname)
-
-        # def foo(param):
-        #     self.checkAndfindId(param,c)
-        #     param.accept(self,c)
-        # list(map(foo,ast.param))
-
-        # return classname
-            #######
-
         #get class
         classcalled=self.lookup(ast.classname.name,c[1],lambda x:x.name)
         if classcalled==None:
@@ -590,52 +507,29 @@ class UndeclaredCheck(BaseVisitor,Utils):
 
     
     def visitId(self, ast, c):
-        findId=self.lookup(ast.name,c[2]+c[0].varlst,lambda x:x.name)
+        # findId=self.lookup(ast.name,c[2]+c[0].varlst,lambda x:x.name)
+        # if findId==None:
+        #     findId=c[0].findAtt(ast.name)
+        #     if findId==None:
+        #         raise Undeclared(Identifier(),ast.name)
+        # return findId.bktype
+        ########Phần trên có thể dùng lại
+        findId=self.lookup(ast.name,c[2],lambda x:x.name)
         if findId==None:
-            findId=c[0].findAtt(ast.name)
-            if findId==None:
-                raise Undeclared(Identifier(),ast.name)
+            raise Undeclared(Identifier(),ast.name)
         return findId.bktype
 
     
     def visitArrayCell(self, ast, c):
-        # self.checkAndfindId(ast.arr,c)
-        # self.checkAndfindId(ast.idx,c)
-
-        # typ=ast.arr.accept(self,c)
-        # ast.idx.accept(self,c)
-        # return typ
-            ######
         arrType=ast.arr.accept(self,c)
         idxType=ast.idx.accept(self,c)
         if ast.idx!=IntType():
             raise TypeMismatchInExpression(ast)
         if not isinstance(arrType,BKArraytype):
             raise TypeMismatchInExpression(ast)
-        return arrType.bktype
+        return arrType.artype
     
     def visitFieldAccess(self, ast, c):
-        # varlst=c[0]
-        # this_method=c[1]
-        # this_class=c[2]
-        # class_hierarchy=c[3]
-        # global_envi=c[4]
-        
-        # var=self.checkAndfindId(ast.obj,c)
-        # if var==None:
-        #     classname=ast.obj.accept(self,c)
-        # else:
-        #     classname=var.bktype
-
-        # classcalled=self.lookup(classname,global_envi,lambda x: x.name)
-
-        # attcalled=classcalled.findAtt(ast.fieldname.name)
-
-        # if attcalled==None:
-        #     raise Undeclared(Attribute(),ast.fieldname.name)
-
-        # return attcalled.bktype
-                ###########
         #check static obj
         if isinstance(ast.obj,Id) and self.lookup(ast.obj.name,c[1],lambda x:x.name):
             objStatic=True 
@@ -652,7 +546,7 @@ class UndeclaredCheck(BaseVisitor,Utils):
         #check var Undeclared
         findvar= self.lookup(ast.fieldname.name,classcalled.varlst,lambda x:x.name)
         if findvar==None:
-            findvar==classcalled.findAtt(ast.fieldname.name)
+            findvar=classcalled.findAtt(ast.fieldname.name)
             if findvar==None:
                 raise Undeclared(Attribute(),ast.fieldname.name)
         if findvar.isstatic!=objStatic:
@@ -684,14 +578,15 @@ class UndeclaredCheck(BaseVisitor,Utils):
         return None
     
     def visitReturn(self, ast, c):
-        return None
+        if ast.expr:
+            ast.expr.accept(self,c)
     
     def visitAssign(self, ast, c):
         leftType=ast.lhs.accept(self,c)
         eType=ast.exp.accept(self,c)
-        if leftType==eType:
+        if type(leftType)==type(eType) and leftType==eType:
             return
-        if leftType==FloatType() and eType==IntType():
+        if isinstance(leftType,FloatType) and isinstance(eType,IntType):
             return 
         if isinstance(leftType,str) and isinstance(eType,str):
             findeType=self.lookup(eType,c[1],lambda x:x.name)
@@ -702,27 +597,6 @@ class UndeclaredCheck(BaseVisitor,Utils):
         raise TypeMismatchInStatement(ast)
     
     def visitCallStmt(self, ast, c):
-        # varlst=c[0]
-        # this_method=c[1]
-        # this_class=c[2]
-        # class_hierarchy=c[3]
-        # global_envi=c[4]
-
-        # self.checkAndfindId(ast.obj,c)
-        # classname=ast.obj.accept(self)
-
-        # classcalled=self.lookup(classname,global_envi,lambda x:x.name)
-        # methodcalled=classcalled.findFunc(ast.method.name)
-        # if methodcalled==None:
-        #     raise Undeclared(Method(),ast.method.name)
-        # def foo(param):
-        #     self.checkAndfindId(param,c)
-        #     param.accept(self,c)
-        # list(map(foo,ast.param))
-
-        # return methodcalled.bktype
-            ########
-
         if isinstance(ast.obj,Id) and self.lookup(ast.obj.name,c[1],lambda x:x.name):
             objStatic=True 
             classcalled=self.lookup(ast.obj.name,c[1],lambda x:x.name)
