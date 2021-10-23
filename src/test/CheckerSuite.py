@@ -1603,7 +1603,7 @@ class CheckerSuite(unittest.TestCase):
 
     def test_99(self):
         input=Program([ClassDecl(Id("Ex"),[AttributeDecl(Instance(),ConstDecl(Id("x"),IntType(),Id("x")))])])
-        expect="Cannot Assign To Constant: AssignStmt(Id(b),IntLit(5))"
+        expect="Illegal Constant Expression: Id(x)"
         self.assertTrue(TestChecker.test(input,expect,499))
 
 

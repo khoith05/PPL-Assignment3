@@ -461,18 +461,8 @@ class UndeclaredCheck(BaseVisitor,Utils):
         lenparam=len(argulist)
         list(map(self.compare,paramList,argulist,[ast for x in range(lenparam)],[TypeMismatchInExpression for x in range(lenparam)],[c for x in range(lenparam)]))
         return ast.classname.name
-
-        
-
     
     def visitId(self, ast, c):
-        # findId=self.lookup(ast.name,c[2]+c[0].varlst,lambda x:x.name)
-        # if findId==None:
-        #     findId=c[0].findAtt(ast.name)
-        #     if findId==None:
-        #         raise Undeclared(Identifier(),ast.name)
-        # return findId.bktype
-        ########Phần trên có thể dùng lại
         findId=self.lookup(ast.name,c[2],lambda x:x.name)
         if findId is None:
             raise Undeclared(Identifier(),ast.name)
