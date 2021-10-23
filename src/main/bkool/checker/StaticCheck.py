@@ -67,11 +67,11 @@ class BKClass(Utils):
         return "{ classname: ["+(','.join(str(i) for i in self.name) if isinstance(self.name,list) else self.name)+"],parent: "+self.parent+",\nvarlist: ["+','.join(str(i) for i in self.varlst)+"],\nfunclist: ["+','.join(str(i) for i in self.funclst)+"]}"
     def findAtt(self,Attname):
         findInClass=self.lookup(Attname,self.varlst,lambda x:x.name)
-        if findInClass==None:
+        if findInClass is None:
             parname=self.parent
             while parname!="":
                 parclass=self.lookup(parname,BKClass.global_envi,lambda x: x.name)
-                if parclass==None:
+                if parclass is None:
                     raise Undeclared(Class(),parname)
                 findInPar=self.lookup(Attname,parclass.varlst,lambda x: x.name)
                 if findInPar!=None:
@@ -86,11 +86,11 @@ class BKClass(Utils):
 
     def findFunc(self,Funcname):
         findInClass=self.lookup(Funcname,self.funclst,lambda x:x.name)
-        if findInClass==None:
+        if findInClass is None:
             parname=self.parent
             while parname!="":
                 parclass=self.lookup(parname,BKClass.global_envi,lambda x: x.name)
-                if parclass==None:
+                if parclass is None:
                     raise Undeclared(Class(),parname)
                 findInPar=self.lookup(Funcname,parclass.funclst,lambda x: x.name)
                 if findInPar!=None:
@@ -102,11 +102,11 @@ class BKClass(Utils):
             return findInClass
         return None
     def findConstruct(self):
-        if self.construct==None:
+        if self.construct is None:
             parname=self.parent
             while parname!="":
                 parclass=self.lookup(parname,BKClass.global_envi,lambda x: x.name)
-                if parclass==None:
+                if parclass is None:
                     raise Undeclared(Class(),parname)
                 if parclass.construct!=None:
                     return parclass.construct
@@ -182,7 +182,7 @@ class RedeclareCheck(BaseVisitor):
         #get class name
         memlist=ast.memlist if isinstance(ast.memlist,list) else ast.parentname
         classname=ast.classname.accept(self,c)
-        parent=ast.parentname.accept(self,c) if  ast.parentname and isinstance(ast.parentname,Id)  else "" if ast.parentname==None else ast.memlist.accept(self,c) 
+        parent=ast.parentname.accept(self,c) if  ast.parentname and isinstance(ast.parentname,Id)  else "" if ast.parentname is None else ast.memlist.accept(self,c) 
         # check redeclared class
         if classname in [eclass.name for eclass in c]:
             raise Redeclared(Class(),classname)
@@ -300,7 +300,7 @@ class UndeclaredCheck(BaseVisitor,Utils):
             parname=bkclass.parent
             while parname!="":
                 findpar=self.lookup(parname,c,lambda x:x.name)
-                if findpar==None:
+                if findpar is None:
                     raise Undeclared(Class(),parname)
                 else:
                     parname=findpar.parent
@@ -335,7 +335,7 @@ class UndeclaredCheck(BaseVisitor,Utils):
             else:
                 return
             findclass=self.lookup(classname,c,lambda x:x.name)
-            if findclass==None:
+            if findclass is None:
                 raise Undeclared(Class(),classname)
         #get class from global_envi
         this_class=self.lookup(ast.classname.name,c,lambda x:x.name)
@@ -362,12 +362,12 @@ class UndeclaredCheck(BaseVisitor,Utils):
             else:
                 return
             findclass=self.lookup(classname,c[1],lambda x:x.name)
-            if findclass==None:
+            if findclass is None:
                 raise Undeclared(Class(),classname)
 
         #check parameter classtype undeclared
         this_method=self.lookup(ast.name.name,c[0].funclst,lambda x: x.name)
-        if this_method==None and ast.name.name=="<init>":
+        if this_method is None and ast.name.name=="<init>":
             this_method=c[0].construct 
         list(map(checkClasstype,this_method.partype))
         #check method return type Undeclared
@@ -408,7 +408,7 @@ class UndeclaredCheck(BaseVisitor,Utils):
     
     def visitClassType(self, ast, c):
         classtype=ast.classname.name 
-        if self.lookup(classtype,c[1],lambda x:x.name)==None:
+        if self.lookup(classtype,c[1],lambda x:x.name) is None:
             raise Undeclared(Class(),classtype)
         return classtype
  
@@ -462,15 +462,15 @@ class UndeclaredCheck(BaseVisitor,Utils):
             classcalledType=ast.obj.accept(self,c)
             if isinstance(classcalledType,str):
                 classcalled=self.lookup(classcalledType,c[1],lambda x:x.name)
-                if classcalled==None:
+                if classcalled is None:
                     Undeclared(Class(),classcalledType)
             else:
                 raise TypeMismatchInExpression(ast)
         #check method Undeclared
         findmethod=self.lookup(ast.method.name,classcalled.funclst,lambda x:x.name)
-        if findmethod==None:
+        if findmethod is None:
             findmethod=classcalled.findFunc(ast.method.name)
-            if findmethod==None:
+            if findmethod is None:
                 raise Undeclared(Method(),ast.method.name)
         if findmethod.isstatic!=objStatic:
             raise IllegalMemberAccess(ast)
@@ -490,12 +490,12 @@ class UndeclaredCheck(BaseVisitor,Utils):
     def visitNewExpr(self, ast, c):
         #get class
         classcalled=self.lookup(ast.classname.name,c[1],lambda x:x.name)
-        if classcalled==None:
+        if classcalled is None:
             raise Undeclared(Class(),ast.classname.name)
         #get argulist
         argulist=list(map(lambda x:x.accept(self,c),ast.param))
         classConstruct=classcalled.findConstruct()
-        if classConstruct==None:
+        if classConstruct is None:
             paramList=[]
         else:
             paramList=classConstruct.partype
@@ -518,7 +518,7 @@ class UndeclaredCheck(BaseVisitor,Utils):
         # return findId.bktype
         ########Phần trên có thể dùng lại
         findId=self.lookup(ast.name,c[2],lambda x:x.name)
-        if findId==None:
+        if findId is None:
             raise Undeclared(Identifier(),ast.name)
         return findId.bktype
 
@@ -542,15 +542,15 @@ class UndeclaredCheck(BaseVisitor,Utils):
             classcalledType=ast.obj.accept(self,c)
             if isinstance(classcalledType,str):
                 classcalled=self.lookup(classcalledType,c[1],lambda x:x.name)
-                if classcalled==None:
+                if classcalled is None:
                     Undeclared(Class(),classcalledType)
             else:
                 raise TypeMismatchInExpression(ast)
         #check var Undeclared
         findvar= self.lookup(ast.fieldname.name,classcalled.varlst,lambda x:x.name)
-        if findvar==None:
+        if findvar is None:
             findvar=classcalled.findAtt(ast.fieldname.name)
-            if findvar==None:
+            if findvar is None:
                 raise Undeclared(Attribute(),ast.fieldname.name)
         if findvar.isstatic!=objStatic:
             raise IllegalMemberAccess(ast)
@@ -615,15 +615,15 @@ class UndeclaredCheck(BaseVisitor,Utils):
             classcalledType=ast.obj.accept(self,c)
             if isinstance(classcalledType,str):
                 classcalled=self.lookup(classcalledType,c[1],lambda x:x.name)
-                if classcalled==None:
+                if classcalled is None:
                     Undeclared(Class(),classcalledType)
             else:
                 raise TypeMismatchInStatement(ast)
         #check method Undeclared
         findmethod=self.lookup(ast.method.name,classcalled.funclst,lambda x:x.name)
-        if findmethod==None:
+        if findmethod is None:
             findmethod=classcalled.findFunc(ast.method.name)
-            if findmethod==None:
+            if findmethod is None:
                 raise Undeclared(Method(),ast.method.name)
         if findmethod.isstatic!=objStatic:
             raise IllegalMemberAccess(ast)
@@ -712,6 +712,8 @@ class ConstantCheck(BaseVisitor,Utils):
     
     def visitId(self, ast, c):
         findId=self.lookup(ast.name, c[2], lambda x:x.name)
+        if findId is None:
+            raise IllegalConstantExpression(ast)
         return findId.isconstant
     
     def visitArrayCell(self, ast, c):

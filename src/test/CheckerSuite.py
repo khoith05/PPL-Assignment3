@@ -1602,16 +1602,40 @@ class CheckerSuite(unittest.TestCase):
         self.assertTrue(TestChecker.test(input,expect,498))
 
     def test_99(self):
-        input="""
-        class Add{
-            final int a=8;
-            int main(){
-                final int b=9;
-                b:=5;
-            }
-        }
-        """
+        input=Program([ClassDecl(Id("Ex"),[AttributeDecl(Instance(),ConstDecl(Id("x"),IntType(),Id("x")))])])
         expect="Cannot Assign To Constant: AssignStmt(Id(b),IntLit(5))"
         self.assertTrue(TestChecker.test(input,expect,499))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
