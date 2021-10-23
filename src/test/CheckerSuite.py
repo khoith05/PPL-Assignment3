@@ -1336,11 +1336,11 @@ class CheckerSuite(unittest.TestCase):
         input="""
         class Add{
             int main(){
-                final Add a=8;
+                final string a=8;
             }
         }
         """
-        expect="Type Mismatch In Constant Declaration: ConstDecl(Id(a),ClassType(Id(Add)),IntLit(8))"
+        expect="Type Mismatch In Constant Declaration: ConstDecl(Id(a),StringType,IntLit(8))"
         self.assertTrue(TestChecker.test(input,expect,481))
 
         ############################
@@ -1394,7 +1394,7 @@ class CheckerSuite(unittest.TestCase):
             int a=Shape.a;
         }
         """
-        expect=""
+        expect="Illegal Member Access: FieldAccess(Id(Shape),Id(a))"
         self.assertTrue(TestChecker.test(input,expect,485))
 
     def test_86(self):
@@ -1456,106 +1456,162 @@ class CheckerSuite(unittest.TestCase):
         #   Break/Continue not in Loop   #
         ##################################
 
-    '''def test_89(self):
-        input=""""""
-        expect=""
+    def test_89(self):
+        input="""
+        class Add{
+            int main(){
+                int i;
+                for i:=1 to 10 do{
+                    continue;
+                }
+                for i:=1 to 10 do{
+                    {{continue;}}
+                }
+                break;
+            }
+        }
+        """
+        expect="Break Not In Loop"
         self.assertTrue(TestChecker.test(input,expect,489))
 
     def test_90(self):
-        input=""""""
-        expect=""
+        input="""
+        class Add{
+            int main(){
+                int i;
+                for i:=1 to 10 do{
+                    {{break;}}
+                }
+                for i:=1 to 10 do{
+                    break;
+                }
+                continue;
+            }
+        }
+        """
+        expect="Continue Not In Loop"
         self.assertTrue(TestChecker.test(input,expect,490))
 
+    ####################################
+    #    Illegal Constant Expression   #
+    ####################################
+
     def test_91(self):
-        input=""""""
-        expect=""
+        input="""
+        class Add{
+            final int a=9;
+            int main(){
+                final int a;
+            }
+        }
+        """
+        expect="Illegal Constant Expression: None"
         self.assertTrue(TestChecker.test(input,expect,491))
 
     def test_92(self):
-        input=""""""
-        expect=""
+        input="""
+        class Add{
+            int a=6;
+            int main(){
+                final int b=1+2-4*3;
+                final int a= 1+this.a;
+            }
+        }
+        """
+        expect="Illegal Constant Expression: BinaryOp(+,IntLit(1),FieldAccess(Self(),Id(a)))"
         self.assertTrue(TestChecker.test(input,expect,492))
 
     def test_93(self):
-        input=""""""
-        expect=""
+        input="""
+        class Add{
+            int foo(){}
+            int main(){
+                final int a=this.foo();
+            }
+        }
+        """
+        expect="Illegal Constant Expression: CallExpr(Self(),Id(foo),[])"
         self.assertTrue(TestChecker.test(input,expect,493))
 
+    ################################
+    #   Cannot Assign to Constant  #
+    ################################
+
     def test_94(self):
-        input=""""""
-        expect=""
+        input="""
+        class Add{
+            final int a=8;
+            int main(){
+                this.a:=8;
+            }
+        }
+        """
+        expect="Cannot Assign To Constant: AssignStmt(FieldAccess(Self(),Id(a)),IntLit(8))"
         self.assertTrue(TestChecker.test(input,expect,494))
 
     def test_95(self):
-        input=""""""
-        expect=""
+        input="""
+        class Add{
+            final int a=8;
+            int main(){
+                final int b=9;
+                b:=5;
+            }
+        }
+        """
+        expect="Cannot Assign To Constant: AssignStmt(Id(b),IntLit(5))"
         self.assertTrue(TestChecker.test(input,expect,495))
 
     def test_96(self):
-        input=""""""
-        expect=""
+        input="""
+        class Add{
+            final int a=8;
+            int main(){
+                final int b=9;
+                b:=5;
+            }
+        }
+        """
+        expect="Cannot Assign To Constant: AssignStmt(Id(b),IntLit(5))"
         self.assertTrue(TestChecker.test(input,expect,496))
 
     def test_97(self):
-        input=""""""
-        expect=""
+        input="""
+        class Add{
+            final int a=8;
+            int main(){
+                final int b=9;
+                b:=5;
+            }
+        }
+        """
+        expect="Cannot Assign To Constant: AssignStmt(Id(b),IntLit(5))"
         self.assertTrue(TestChecker.test(input,expect,497))
 
     def test_98(self):
-        input=""""""
-        expect=""
+        input="""
+        class Add{
+            final int a=8;
+            int main(){
+                final int b=9;
+                b:=5;
+            }
+        }
+        """
+        expect="Cannot Assign To Constant: AssignStmt(Id(b),IntLit(5))"
         self.assertTrue(TestChecker.test(input,expect,498))
 
     def test_99(self):
-        input=""""""
-        expect=""
-        self.assertTrue(TestChecker.test(input,expect,499))'''
+        input="""
+        class Add{
+            final int a=8;
+            int main(){
+                final int b=9;
+                b:=5;
+            }
+        }
+        """
+        expect="Cannot Assign To Constant: AssignStmt(Id(b),IntLit(5))"
+        self.assertTrue(TestChecker.test(input,expect,499))
 
 
-
-    # def test_undeclared_function(self):
-    #     """Simple program: int main() {} """
-    #     input = """int main() {foo();}"""
-    #     expect = "Undeclared Function: foo"
-    #     self.assertTrue(TestChecker.test(input,expect,400))
-
-    # def test_diff_numofparam_stmt(self):
-    #     """More complex program"""
-    #     input = """int main () {
-    #         putIntLn();
-    #     }"""
-    #     expect = "Type Mismatch In Statement: CallExpr(Id(putIntLn),List())"
-    #     self.assertTrue(TestChecker.test(input,expect,401))
-    
-    # def test_diff_numofparam_expr(self):
-    #     """More complex program"""
-    #     input = """int main () {
-    #         putIntLn(getInt(4));
-    #     }"""
-    #     expect = "Type Mismatch In Expression: CallExpr(Id(getInt),List(IntLiteral(4)))"
-    #     self.assertTrue(TestChecker.test(input,expect,402))
-
-    # def test_undeclared_function_use_ast(self):
-    #     """Simple program: int main() {} """
-    #     input = Program([FuncDecl(Id("main"),[],IntType(),Block([],[
-    #         CallExpr(Id("foo"),[])]))])
-    #     expect = "Undeclared Function: foo"
-    #     self.assertTrue(TestChecker.test(input,expect,403))
-
-    # def test_diff_numofparam_expr_use_ast(self):
-    #     """More complex program"""
-    #     input = Program([
-    #             FuncDecl(Id("main"),[],IntType(),Block([],[
-    #                 CallExpr(Id("putIntLn"),[
-    #                     CallExpr(Id("getInt"),[IntLiteral(4)])
-    #                     ])]))])
-    #     expect = "Type Mismatch In Expression: CallExpr(Id(getInt),List(IntLiteral(4)))"
-    #     self.assertTrue(TestChecker.test(input,expect,404))
-
-    # def test_diff_numofparam_stmt_use_ast(self):
-    #     """More complex program"""
-    #     input = Program([
-    #             FuncDecl(Id("main"),[],IntType(),Block([],[
-    #                 CallExpr(Id("putIntLn"),[])]))])
-    #     expect = "Type Mismatch In Statement: CallExpr(Id(putIntLn),List())"
-    #     self.assertTrue(TestChecker.test(input,expect,405))

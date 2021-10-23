@@ -313,7 +313,6 @@ class UndeclaredCheck(BaseVisitor,Utils):
         typedecl=ast.varType.accept(self,c)
         if ast.varInit!=None:
             typevar=ast.varInit.accept(self,c)
-
             self.compare(typedecl, typevar,ast,TypeMismatchInExpression,c)
         return Var(ast.variable.name,typedecl,False,False)
 
@@ -665,10 +664,127 @@ class UndeclaredCheck(BaseVisitor,Utils):
         list(map(checkArray,ast.value))
         return BKArraytype(size, arrType)
 
+class TempVar:
+    def __init__(self,name,isConstant):
+        self.name=name
+        self.isconstant=isConstant
 
     #Check Connot Assign to constant, Break/Continue in Loop,Illegal constant Expression
 
-class ConstantCheck(BaseVisitor,Utils):pass
+class ConstantCheck(BaseVisitor,Utils):
+
+    def visitProgram(self, ast, c):
+        list(map(lambda x:x.accept(self,c),ast.decl ))
+        
+    def visitConstDecl(self, ast, c):
+        if (ast.value==None) or not ast.value.accept(self,c):
+            raise IllegalConstantExpression(ast.value)
+        
+    
+    def visitClassDecl(self, ast, c):
+        thisClass=self.lookup(ast.classname.name,c,lambda x:x.name)
+        # c= [thisClass,GlobalEnvi,varList,isLoop]
+        list(map(lambda x:x.accept(self,[thisClass,c,[],False]),ast.memlist))
+    
+    def visitMethodDecl(self, ast, c):
+        paramList=list(map(lambda x:TempVar(x.variable.name, False),ast.param))
+        ast.body.accept(self,[c[0],c[1],paramList,False])
+
+
+    def visitAttributeDecl(self, ast, c):
+        ast.decl.accept(self,c)
+    
+    def visitBinaryOp(self, ast, c):
+        if not ( ast.left.accept(self,c) and ast.right.accept(self,c)):
+            return False
+        return True
+    
+    def visitUnaryOp(self, ast, c):
+        if not ast.body.accept(self,c):
+            return False
+        return True
+    
+    def visitCallExpr(self, ast, c):
+        return False
+    
+    def visitNewExpr(self, ast, c):
+        return False
+    
+    def visitId(self, ast, c):
+        findId=self.lookup(ast.name, c[2], lambda x:x.name)
+        return findId.isconstant
+    
+    def visitArrayCell(self, ast, c):
+        return ast.arr.accept(self,c)
+
+    
+    def visitFieldAccess(self, ast, c):
+        if isinstance(ast.obj,Id) and self.lookup(ast.obj.name,c[1],lambda x:x.name):
+            classcalled=self.lookup(ast.obj.name,c[1],lambda x:x.name)
+        else :
+            classcalledType=ast.obj.accept(UndeclaredCheck(),c)
+            if isinstance(classcalledType,str):
+                classcalled=self.lookup(classcalledType,c[1],lambda x:x.name)
+
+        #check var Undeclared
+        findvar=classcalled.findAtt(ast.fieldname.name)
+        return findvar.isconstant
+    
+    def visitBlock(self, ast, c):
+        def getTempVar(x):
+            if isinstance(x, VarDecl):
+                return TempVar(x.variable.name, False)
+            else:
+                return TempVar(x.constant.name, True)
+        varList=list(map(getTempVar,ast.decl))
+        list(map(lambda x:x.accept(self,[c[0],c[1],varList+c[2],c[3]]),ast.decl))
+        list(map(lambda x: x.accept(self,[c[0],c[1],varList+c[2],c[3]]),ast.stmt))
+    
+    def visitIf(self, ast, c):
+        ast.thenStmt.accept(self,c)
+        if ast.elseStmt!=None:
+            ast.elseStmt.accept(self,c)
+    
+    def visitFor(self, ast, c):
+        ScalaVar=self.lookup(ast.id.name, c[2], lambda x:x.name)
+        if ScalaVar.isconstant:
+            raise CannotAssignToConstant(Assign(ast.id,ast.expr1))
+        ast.loop.accept(self,[c[0],c[1],c[2],True])
+    
+    def visitContinue(self, ast, c):
+        if not c[3]:
+            raise MustInLoop(ast)
+    
+    def visitBreak(self, ast, c):
+        if not c[3]:
+            raise MustInLoop(ast)
+    
+    def visitAssign(self, ast, c):
+        if ast.lhs.accept(self,c):
+            raise CannotAssignToConstant(ast)
+    
+    def visitIntLiteral(self, ast, c):
+        return True
+    
+    def visitFloatLiteral(self, ast, c):
+        return True
+    
+    def visitBooleanLiteral(self, ast, c):
+        return True
+    
+    def visitStringLiteral(self, ast, c):
+        return True
+    
+    def visitNullLiteral(self, ast, c):
+        return None
+    
+    def visitSelfLiteral(self, ast, c):
+        return None 
+
+    def visitArrayLiteral(self, ast, c):
+        return True
+    
+
 
 class StaticChecker(BaseVisitor,Utils):
 
@@ -702,6 +818,7 @@ class StaticChecker(BaseVisitor,Utils):
         # Undeclared check
         BKClass.global_envi=global_envi
         ast.accept(UndeclaredCheck(),global_envi)
+        ast.accept(ConstantCheck(),global_envi)
         del global_envi
         del BKClass.global_envi
 

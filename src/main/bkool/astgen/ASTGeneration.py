@@ -354,7 +354,7 @@ class ASTGeneration(BKOOLVisitor):
                 elif len(x)==2:
                     reval+=[VarDecl(x[0],vtype,x[1])]
         else:
-            reval+=[ConstDecl(x[0],vtype,x[1]) for x in vlist]
+            reval+=list(map(lambda x: ConstDecl(x[0],vtype,None) if len(x)==1 else ConstDecl(x[0],vtype,x[1]),vlist))
         return reval
         #return [VarDecl(x[0],vtype) for x in vlist if len(x)==1 ] + [VarDecl(x[0],vtype,x[1]) for x in vlist if len(x) ==2] if ctx.FINAL_LIT()==None else [ConstDecl(x[0],vtype,x[1]) for x in vlist]
 
