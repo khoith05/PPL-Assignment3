@@ -32,7 +32,7 @@ class BKArraytype:
         return "{ size: "+self.size+",type: "+str(self.artype)+"}"
     def __eq__(self,other):
         if isinstance(other,BKArraytype):
-            return self.artype==other.artype and self.size==other.size
+            return type(self.artype)==type(other.artype) and  self.artype==other.artype and self.size==other.size
         else:
             return False
 
@@ -65,10 +65,6 @@ class BKClass(Utils):
         self.construct=construct
     def __str__(self):
         return "{ classname: ["+(','.join(str(i) for i in self.name) if isinstance(self.name,list) else self.name)+"],parent: "+self.parent+",\nvarlist: ["+','.join(str(i) for i in self.varlst)+"],\nfunclist: ["+','.join(str(i) for i in self.funclst)+"]}"
-    def addClass(self,bkclass):
-        self.name+=[bkclass.name]
-        self.varlst+=bkclass.varlst
-        self.funclst+=bkclass.funclst
     def findAtt(self,Attname):
         findInClass=self.lookup(Attname,self.varlst,lambda x:x.name)
         if findInClass==None:
@@ -105,6 +101,20 @@ class BKClass(Utils):
         else:
             return findInClass
         return None
+    def findConstruct(self):
+        if self.construct==None:
+            parname=self.parent
+            while parname!="":
+                parclass=self.lookup(parname,BKClass.global_envi,lambda x: x.name)
+                if parclass==None:
+                    raise Undeclared(Class(),parname)
+                if parclass.construct!=None:
+                    return parclass.construct
+                else:
+                    parname=parclass.parent
+            return None    
+        else:
+            return self.construct
 
     def isSubclass(self,classname):
         parname=self.parent
@@ -263,10 +273,13 @@ class RedeclareCheck(BaseVisitor):
     
     def visitFor(self, ast, c):
         ast.loop.accept(self,[])
+    
+    # Check Undeclared , Type mismatch in Expression, Type mismatch in Constant,Type mismatch in Statement,
+    # Illegal Array Literal, Illegal member Acsess
 
 class UndeclaredCheck(BaseVisitor,Utils):
 
-    def compare(self,type1,type2,ast,Error):
+    def compare(self,type1,type2,ast,Error,c):
             if isinstance(type1, BKArraytype) and isinstance(type2, BKArraytype) and type1==type2:
                 return True
             if isinstance(type1, FloatType) and isinstance(type2, IntType):
@@ -300,7 +313,8 @@ class UndeclaredCheck(BaseVisitor,Utils):
         typedecl=ast.varType.accept(self,c)
         if ast.varInit!=None:
             typevar=ast.varInit.accept(self,c)
-            self.compare(typedecl, typevar,ast,TypeMismatchInExpression)
+
+            self.compare(typedecl, typevar,ast,TypeMismatchInExpression,c)
         return Var(ast.variable.name,typedecl,False,False)
 
     
@@ -309,7 +323,7 @@ class UndeclaredCheck(BaseVisitor,Utils):
         typedecl=ast.constType.accept(self,c)
         if ast.value:
             typeconst=ast.value.accept(self,c)
-            self.compare(typedecl, typeconst,ast,TypeMismatchInConstant)
+            self.compare(typedecl, typeconst,ast,TypeMismatchInConstant,c)
 
         return Var(ast.constant.name,typedecl,False,True)
     
@@ -366,18 +380,13 @@ class UndeclaredCheck(BaseVisitor,Utils):
 
     
     def visitAttributeDecl(self, ast, c):
-        ast.decl.accept(self,c)
+        ast.decl.accept(self,[c[0],c[1],c[0].varlst])
 
     def visitBlock(self, ast, c):
         #get var declared list
-        varlst=reduce(lambda y,x:[x.accept(self,[c[0],c[1],c[2]+y])]+y,ast.decl,[])
+        varlst=reduce(lambda y,x:y+[x.accept(self,[c[0],c[1],y+c[2]])],ast.decl,[])
         #visit statements
-        def vsStmt(x):
-            if isinstance(x, Return):
-                x.accept(self,[c[0],c[1],c[2]+varlst,c[3]])
-            else:
-                x.accept(self,[c[0],c[1],c[2]+varlst])
-        list(map(vsStmt,ast.stmt))
+        list(map(lambda x:x.accept(self,[c[0],c[1],varlst+c[2],c[3]]),ast.stmt))
 
     
     def visitIntType(self, ast, c):
@@ -474,7 +483,7 @@ class UndeclaredCheck(BaseVisitor,Utils):
         if len(findmethod.partype)!=len(paramlst):
             raise TypeMismatchInExpression(ast)
         lenparam=len(paramlst)
-        list(map(self.compare,findmethod.partype,paramlst,[ast for x in range(lenparam)],[TypeMismatchInExpression for x in range(lenparam)]))
+        list(map(self.compare,findmethod.partype,paramlst,[ast for x in range(lenparam)],[TypeMismatchInExpression for x in range(lenparam)],[c for x in range(lenparam)]))
         return findmethod.bktype
 
 
@@ -484,16 +493,18 @@ class UndeclaredCheck(BaseVisitor,Utils):
         classcalled=self.lookup(ast.classname.name,c[1],lambda x:x.name)
         if classcalled==None:
             raise Undeclared(Class(),ast.classname.name)
-        #get param
-        paramlst=list(map(lambda x:x.accept(self,c),ast.param))
-        if classcalled.construct==None and len(paramlst)==0:
-            return ast.classname.name 
-        elif classcalled.construct==None and len(paramlst)!=0:
+        #get argulist
+        argulist=list(map(lambda x:x.accept(self,c),ast.param))
+        classConstruct=classcalled.findConstruct()
+        if classConstruct==None:
+            paramList=[]
+        else:
+            paramList=classConstruct.partype
+
+        if len(paramList)!=len(argulist):
             raise TypeMismatchInExpression(ast)
-        elif len(classcalled.construct.partype)!=len(paramlst):
-            raise TypeMismatchInExpression(ast)
-        lenparam=len(paramlst)
-        list(map(self.compare,classcalled.construct.partype,paramlst,[ast for x in range(lenparam)],[TypeMismatchInExpression for x in range(lenparam)]))
+        lenparam=len(argulist)
+        list(map(self.compare,paramList,argulist,[ast for x in range(lenparam)],[TypeMismatchInExpression for x in range(lenparam)],[c for x in range(lenparam)]))
         return ast.classname.name
 
         
@@ -550,10 +561,11 @@ class UndeclaredCheck(BaseVisitor,Utils):
     
     def visitIf(self, ast, c):
         ifType=ast.expr.accept(self,c)
-        if ifType!=BoolType():
+        if not isinstance(ifType, BoolType):
             raise TypeMismatchInStatement(ast)
         ast.thenStmt.accept(self,c)
-        ast.elseStmt.accept(self,c)
+        if ast.elseStmt:
+            ast.elseStmt.accept(self,c)
 
     
     def visitFor(self, ast, c):
@@ -573,7 +585,7 @@ class UndeclaredCheck(BaseVisitor,Utils):
     def visitReturn(self, ast, c):
         if ast.expr:
             typere=ast.expr.accept(self,[c[0],c[1],c[2]])
-            self.compare(c[3], typere,ast,TypeMismatchInStatement)
+            self.compare(c[3], typere,ast,TypeMismatchInStatement,c)
 
     
     def visitAssign(self, ast, c):
@@ -607,7 +619,7 @@ class UndeclaredCheck(BaseVisitor,Utils):
                 if classcalled==None:
                     Undeclared(Class(),classcalledType)
             else:
-                raise TypeMismatchInExpression(ast)
+                raise TypeMismatchInStatement(ast)
         #check method Undeclared
         findmethod=self.lookup(ast.method.name,classcalled.funclst,lambda x:x.name)
         if findmethod==None:
@@ -616,13 +628,15 @@ class UndeclaredCheck(BaseVisitor,Utils):
                 raise Undeclared(Method(),ast.method.name)
         if findmethod.isstatic!=objStatic:
             raise IllegalMemberAccess(ast)
+        if not isinstance(findmethod.bktype, VoidType):
+            raise TypeMismatchInStatement(ast)
         #get paramlist
         paramlst=list(map(lambda x:x.accept(self,c),ast.param))
 
         if len(findmethod.partype)!=len(paramlst):
-            raise TypeMismatchInExpression(ast)
+            raise TypeMismatchInStatement(ast)
         lenparam=len(paramlst)
-        list(map(self.compare,findmethod.partype,paramlst,[ast for x in range(lenparam)],[TypeMismatchInStatement for x in range(lenparam)]))
+        list(map(self.compare,findmethod.partype,paramlst,[ast for x in range(lenparam)],[TypeMismatchInStatement for x in range(lenparam)],[c for x in range(lenparam)]))
     
     def visitIntLiteral(self, ast, c):
         return IntType()
@@ -646,9 +660,15 @@ class UndeclaredCheck(BaseVisitor,Utils):
         size= len(ast.value)
         arrType=ast.value[0].accept(self,c)
         def checkArray(ele):
-            if arrType!=ele.accept(self,c):
+            if type(arrType)!=type(ele.accept(self,c)):
                 raise IllegalArrayLiteral(ast)
         list(map(checkArray,ast.value))
+        return BKArraytype(size, arrType)
+
+
+    #Check Connot Assign to constant, Break/Continue in Loop,Illegal constant Expression
+
+class ConstantCheck(BaseVisitor,Utils):pass
 
 class StaticChecker(BaseVisitor,Utils):
 

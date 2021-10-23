@@ -65,7 +65,7 @@ class ASTGeneration(BKOOLVisitor):
 
     # array_type:vdecl_type LSB INTMT RSB;
     def visitArray_type(self, ctx:BKOOLParser.Array_typeContext):
-        return ArrayType(ctx.INTMT().getText(),ctx.vdecl_type().accept(self))
+        return ArrayType(int(ctx.INTMT().getText()),ctx.vdecl_type().accept(self))
 
 
     # array_lst: array_assign COMMA array_lst| array_assign;
@@ -81,7 +81,7 @@ class ASTGeneration(BKOOLVisitor):
         if ctx.getChildCount()==1:
             return [Id(ctx.ID().getText())]
         elif ctx.getChildCount()==3:
-            return [Id(ctx.ID().getText()),ctx.expr().getText()]
+            return [Id(ctx.ID().getText()),ctx.expr().accept(self)]
         else:
             return [Id(ctx.ID().getText()),ArrayLiteral(ctx.array_value().accept(self))]
 
