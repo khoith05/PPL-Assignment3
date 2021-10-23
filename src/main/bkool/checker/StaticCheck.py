@@ -10,26 +10,12 @@ class Utils:
                 return x
         return None
 
-
-class MType:
-    def __init__(self,partype,rettype):
-        self.partype = partype
-        self.rettype = rettype
-
-class Symbol:
-    def __init__(self,name,mtype,value = None):
-        self.name = name
-        self.mtype = mtype
-        self.value = value
-
 class BKArraytype:
     def __init__(self,size,artype):
         self.artype=artype
         self.size=size
     def isClass(self):
         return isinstance(self.artype,str)
-    def __str__(self):
-        return "{ size: "+self.size+",type: "+str(self.artype)+"}"
     def __eq__(self,other):
         if isinstance(other,BKArraytype):
             return type(self.artype)==type(other.artype) and  self.artype==other.artype and self.size==other.size
@@ -42,9 +28,6 @@ class Var:
         self.bktype=bktype
         self.isstatic=isStatic
         self.isconstant=isConstant
-    def __str__(self):
-        return "{ varname: "+self.name + ",type: "+self.bktype+",Static: "+str(self.isstatic)+",Constant: "+str(self.isconstant)+"}"
-
 
 class Func:
     def __init__(self,name,bktype,partype,isStatic):
@@ -52,9 +35,7 @@ class Func:
         self.bktype=bktype
         self.partype=partype
         self.isstatic=isStatic
-    def __str__(self):
-        return "{ funcname: "+self.name+",rettype: "+(str(self.bktype) if not isinstance(self.bktype,str) else self.bktype)+",para: ["+','.join(str(i) for i in self.partype)+"],Static: "+str(self.isstatic)+"}"
-
+    
 class BKClass(Utils):
     global_envi=[]
     def __init__(self,name,parent,varlst,funclst,construct=None):
@@ -63,8 +44,6 @@ class BKClass(Utils):
         self.varlst=varlst
         self.funclst=funclst
         self.construct=construct
-    def __str__(self):
-        return "{ classname: ["+(','.join(str(i) for i in self.name) if isinstance(self.name,list) else self.name)+"],parent: "+self.parent+",\nvarlist: ["+','.join(str(i) for i in self.varlst)+"],\nfunclist: ["+','.join(str(i) for i in self.funclst)+"]}"
     def findAtt(self,Attname):
         findInClass=self.lookup(Attname,self.varlst,lambda x:x.name)
         if findInClass is None:
@@ -74,7 +53,7 @@ class BKClass(Utils):
                 if parclass is None:
                     raise Undeclared(Class(),parname)
                 findInPar=self.lookup(Attname,parclass.varlst,lambda x: x.name)
-                if findInPar!=None:
+                if findInPar is not None:
                     return findInPar
                 else:
                     parname=parclass.parent
@@ -93,7 +72,7 @@ class BKClass(Utils):
                 if parclass is None:
                     raise Undeclared(Class(),parname)
                 findInPar=self.lookup(Funcname,parclass.funclst,lambda x: x.name)
-                if findInPar!=None:
+                if findInPar is not None:
                     return findInPar
                 else:
                     parname=parclass.parent
@@ -108,7 +87,7 @@ class BKClass(Utils):
                 parclass=self.lookup(parname,BKClass.global_envi,lambda x: x.name)
                 if parclass is None:
                     raise Undeclared(Class(),parname)
-                if parclass.construct!=None:
+                if parclass.construct is not None:
                     return parclass.construct
                 else:
                     parname=parclass.parent
@@ -126,29 +105,6 @@ class BKClass(Utils):
                 parname=parclass.parent
         return False
         
-'''
-var= {
-    "name":str,
-    "type":,
-    "size":0,
-    "kind":
-}
-func={
-    "name":,
-    "rettype":,
-    "retsize":0,
-    "partype":,
-    "kind":
-}
-class={
-    "name":,
-    "parent":,
-    "varlst":,
-    "funclst":
-}
-global=[classlst]
-'''
-
 class RedeclareCheck(BaseVisitor):
     
     def visitProgram(self, ast, c):
@@ -212,7 +168,7 @@ class RedeclareCheck(BaseVisitor):
         paralist=[]
         def checkParam(para):
             rev=para.accept(self,paralist)
-            if rev!=None:
+            if rev is not None:
                 raise Redeclared(Parameter(),rev)
         list(map(checkParam ,ast.param))
         method_envi.partype+=[para[1] for para in paralist]
@@ -226,7 +182,7 @@ class RedeclareCheck(BaseVisitor):
         #check redeclared
         varlst=[[var.name,var.bktype] for var in c.varlst]
         rev=ast.decl.accept(self,varlst)
-        if rev!=None:
+        if rev is not None:
             raise Redeclared(Attribute(),rev)
         attr=Var(varlst[len(varlst)-1][0],varlst[len(varlst)-1][1],ast.kind.accept(self,c),isinstance(ast.decl,ConstDecl))
         c.varlst+=[attr]
@@ -259,7 +215,7 @@ class RedeclareCheck(BaseVisitor):
         #check redeclared
         def checkDecl(decl):
             rev=decl.accept(self,c)
-            if rev!=None:
+            if rev is not None:
                 raise Redeclared(Variable() if isinstance(decl,VarDecl) else Constant(),rev)
         list(map(checkDecl,ast.decl))
         list(map(lambda stmt: stmt.accept(self,[]),ast.stmt))
@@ -311,7 +267,7 @@ class UndeclaredCheck(BaseVisitor,Utils):
     
     def visitVarDecl(self, ast, c):
         typedecl=ast.varType.accept(self,c)
-        if ast.varInit!=None:
+        if ast.varInit is not None:
             typevar=ast.varInit.accept(self,c)
             self.compare(typedecl, typevar,ast,TypeMismatchInExpression,c)
         return Var(ast.variable.name,typedecl,False,False)
@@ -744,7 +700,7 @@ class ConstantCheck(BaseVisitor,Utils):
     
     def visitIf(self, ast, c):
         ast.thenStmt.accept(self,c)
-        if ast.elseStmt!=None:
+        if ast.elseStmt is not None:
             ast.elseStmt.accept(self,c)
     
     def visitFor(self, ast, c):
@@ -790,9 +746,6 @@ class ConstantCheck(BaseVisitor,Utils):
 
 class StaticChecker(BaseVisitor,Utils):
 
-    
-            
-    
     def __init__(self,ast):
         self.ast = ast
 
@@ -823,29 +776,8 @@ class StaticChecker(BaseVisitor,Utils):
         ast.accept(ConstantCheck(),global_envi)
         del global_envi
         del BKClass.global_envi
-
-
-
-
-    def visitFuncDecl(self,ast, c): 
-        return list(map(lambda x: self.visit(x,(c,True)),ast.body.stmt)) 
     
 
-    def visitCallExpr(self, ast, c): 
-        at = [self.visit(x,(c[0],False)) for x in ast.param]
-        
-        res = self.lookup(ast.method.name,c[0],lambda x: x.name)
-        if res is None or not type(res.mtype) is MType:
-            raise Undeclared(Method(),ast.method.name)
-        elif len(res.mtype.partype) != len(at):
-            if c[1]:
-                raise TypeMismatchInStatement(ast)
-            else:
-                raise TypeMismatchInExpression(ast)
-        else:
-            return res.mtype.rettype
-
-    def visitIntLiteral(self,ast, c): 
-        return IntType()
+   
     
 
