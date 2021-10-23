@@ -677,7 +677,7 @@ class ConstantCheck(BaseVisitor,Utils):
         list(map(lambda x:x.accept(self,c),ast.decl ))
         
     def visitConstDecl(self, ast, c):
-        if (ast.value==None) or not ast.value.accept(self,c):
+        if ast.value is None  or not ast.value.accept(self,c):
             raise IllegalConstantExpression(ast.value)
         
     
